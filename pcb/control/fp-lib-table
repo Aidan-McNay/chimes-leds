@@ -1,0 +1,5 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "pico")(type "KiCad")(uri "${KIPRJMOD}/libs/pico.pretty")(options "")(descr "RaspberryPi PicoW"))
+  (lib (name "CAN")(type "KiCad")(uri "${KIPRJMOD}/libs/can.pretty")(options "")(descr ""))
+)
