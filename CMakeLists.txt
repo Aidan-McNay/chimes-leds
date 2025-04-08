@@ -130,8 +130,12 @@ endforeach(SUBDIR)
 # Add main executable
 # ------------------------------------------------------------------------
 
+unset(APP_FILES)
+unset(PIO_FILES)
+
 add_subdirectory(apps)
 add_prefix(APP_FILES "apps/")
+add_prefix(PIO_FILES "apps/")
 
 foreach(APP_FILE_PATH ${APP_FILES})
   get_leaf(APP_FILE ${APP_FILE_PATH})
