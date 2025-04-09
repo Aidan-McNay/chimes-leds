@@ -11156,7 +11156,7 @@
 		(at 188.5 60.5 -90)
 		(tags "DMG2305UX-7 ")
 		(property "Reference" "U4"
-			(at -0.5 -2.5 -90)
+			(at -1.5 -2.5 -90)
 			(unlocked yes)
 			(layer "F.SilkS")
 			(uuid "35b3cc01-8031-4817-ad04-08966992bac0")
@@ -16749,11 +16749,19 @@
 	)
 	(segment
 		(start 189.445 60.5)
-		(end 189.445 67.145)
-		(width 1)
+		(end 190 61.055)
+		(width 2)
 		(layer "F.Cu")
 		(net 16)
-		(uuid "2f34bc4d-4116-4d06-afd2-e000fcb91be1")
+		(uuid "418ad9e8-8b68-435c-8497-7b9eb0617d08")
+	)
+	(segment
+		(start 190 61.055)
+		(end 190 67.7)
+		(width 2)
+		(layer "F.Cu")
+		(net 16)
+		(uuid "4cb6f799-030d-44ed-bc40-882ab42cdf58")
 	)
 	(segment
 		(start 189.445 67.145)
