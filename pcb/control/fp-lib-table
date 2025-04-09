@@ -6,4 +6,6 @@
   (lib (name "dmg2305ux")(type "KiCad")(uri "${KIPRJMOD}/libs/dmg2305ux.pretty")(options "")(descr ""))
   (lib (name "fdn340p")(type "KiCad")(uri "${KIPRJMOD}/libs/fdn340p.pretty")(options "")(descr ""))
   (lib (name "pta4543")(type "KiCad")(uri "${KIPRJMOD}/libs/pta4543.pretty")(options "")(descr ""))
+  (lib (name "rm103772bcb")(type "KiCad")(uri "${KIPRJMOD}/libs/rm103772bcb.pretty")(options "")(descr ""))
+  (lib (name "os102011ms2qn1")(type "KiCad")(uri "${KIPRJMOD}/libs/os102011ms2qn1.pretty")(options "")(descr ""))
 )

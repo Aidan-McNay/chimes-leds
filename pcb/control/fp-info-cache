@@ -1,4 +1,4 @@
-24668384349489383
+24673617005228096
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -99399,6 +99399,13 @@ FDN340P
 0
 3
 3
+os102011ms2qn1
+SPDT_OS102011_CNK
+
+OS102011MS2QN1 
+0
+5
+5
 pesd
 SOT23_PESD1_NEX
 
@@ -99427,3 +99434,17 @@ Through hole pin header THT 2x20 2.54mm double row
 0
 83
 43
+pta4543
+POT_PTA4543
+
+PTA4543-2015DPA103 
+0
+7
+7
+rm103772bcb
+RM103772BCB
+RM103772BCB
+Switch
+0
+8
+8
