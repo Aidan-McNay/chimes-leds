@@ -14,9 +14,9 @@ The PCB files for the control board at the playing stand level
  - **9**: "On" mode (always on, set as pull-down)
 
 **Color Potentiometer Inputs**
- - **26**: Red Potentiometer
+ - **28**: Red Potentiometer
  - **27**: Green Potentiometer
- - **28**: Blue Potentiometer
+ - **26**: Blue Potentiometer
 
 **Status LEDs**:
  - **10**: "On" LED (high when enabled)
@@ -27,10 +27,10 @@ The PCB files for the control board at the playing stand level
 
 **Communication LEDs** *(whether we're communicating with a board)*:
  - **3**: Sensor Board
- - **18**: North Face
- - **19**: East Face
+ - **21**: North Face
  - **20**: South Face
- - **21**: West Face
+ - **19**: East Face
+ - **18**: West Face
 
 **CAN connections**:
  - **16**: CAN TX
