@@ -8,4 +8,5 @@
   (lib (name "pta4543")(type "KiCad")(uri "${KIPRJMOD}/libs/pta4543.pretty")(options "")(descr ""))
   (lib (name "rm103772bcb")(type "KiCad")(uri "${KIPRJMOD}/libs/rm103772bcb.pretty")(options "")(descr ""))
   (lib (name "os102011ms2qn1")(type "KiCad")(uri "${KIPRJMOD}/libs/os102011ms2qn1.pretty")(options "")(descr ""))
+  (lib (name "1985276")(type "KiCad")(uri "${KIPRJMOD}/libs/1985276.pretty")(options "")(descr ""))
 )
