@@ -4,4 +4,5 @@
   (lib (name "pesd")(type "KiCad")(uri "${KIPRJMOD}/libs/pesd.kicad_sym")(options "")(descr ""))
   (lib (name "can")(type "KiCad")(uri "${KIPRJMOD}/libs/can.kicad_sym")(options "")(descr ""))
   (lib (name "pico")(type "KiCad")(uri "${KIPRJMOD}/libs/pico.kicad_sym")(options "")(descr ""))
+  (lib (name "veml6030_gs15")(type "KiCad")(uri "${KIPRJMOD}/libs/veml6030_gs15.kicad_sym")(options "")(descr ""))
 )
