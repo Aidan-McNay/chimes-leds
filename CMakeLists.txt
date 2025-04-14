@@ -122,7 +122,8 @@ set(SUBDIRS
   sensors
 )
 
-set(USER_LIBS "")
+set(GLOBAL_SRC_FILES "")
+set(GLOBAL_PIO_FILES "")
 
 foreach(SUBDIR ${SUBDIRS})
   unset(SRC_FILES)
@@ -131,14 +132,8 @@ foreach(SUBDIR ${SUBDIRS})
   add_subdirectory(${SUBDIR})
   add_prefix(SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${SUBDIR}/)
   add_prefix(PIO_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${SUBDIR}/)
-
-  add_library(${SUBDIR} STATIC ${SRC_FILES})
-  target_link_libraries(${SUBDIR} PRIVATE ${PICO_LIBS})
-  set(USER_LIBS ${USER_LIBS} ${SUBDIR})
-
-  foreach(PIO_FILE ${PIO_FILES})
-    pico_generate_pio_header(${SUBDIR} ${PIO_FILE})
-  endforeach(PIO_FILE)
+  set(GLOBAL_SRC_FILES ${GLOBAL_SRC_FILES} ${SRC_FILES})
+  set(GLOBAL_PIO_FILES ${GLOBAL_PIO_FILES} ${PIO_FILES})
 endforeach(SUBDIR)
 
 # ------------------------------------------------------------------------
@@ -155,14 +150,14 @@ add_prefix(PIO_FILES "apps/")
 foreach(APP_FILE_PATH ${APP_FILES})
   get_leaf(APP_FILE ${APP_FILE_PATH})
   remove_extension(APP_BIN ${APP_FILE})
-  add_executable(${APP_BIN} ${APP_FILE_PATH})
-  target_link_libraries(${APP_BIN} ${USER_LIBS} ${PICO_LIBS})
+  add_executable(${APP_BIN} ${APP_FILE_PATH} ${GLOBAL_SRC_FILES})
+  target_link_libraries(${APP_BIN} ${PICO_LIBS})
 
   # create map/bin/hex file etc.
   pico_add_extra_outputs(${APP_BIN})
 
   # Generate PIO headers
-  foreach(PIO_FILE ${PIO_FILES})
+  foreach(PIO_FILE ${PIO_FILES} ${GLOBAL_PIO_FILES})
     pico_generate_pio_header(${APP_BIN} ${PIO_FILE})
   endforeach(PIO_FILE)
 endforeach(APP_FILE_PATH)
