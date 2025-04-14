@@ -1,0 +1,7 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "pico")(type "KiCad")(uri "${KIPRJMOD}/libs/pico.kicad_sym")(options "")(descr ""))
+  (lib (name "pesd")(type "KiCad")(uri "${KIPRJMOD}/libs/pesd.kicad_sym")(options "")(descr ""))
+  (lib (name "can")(type "KiCad")(uri "${KIPRJMOD}/libs/can.kicad_sym")(options "")(descr ""))
+  (lib (name "fdn340p")(type "KiCad")(uri "${KIPRJMOD}/libs/fdn340p.kicad_sym")(options "")(descr ""))
+)

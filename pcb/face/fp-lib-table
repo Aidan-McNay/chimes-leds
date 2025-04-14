@@ -1,0 +1,7 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "pico")(type "KiCad")(uri "${KIPRJMOD}/libs/pico.pretty")(options "")(descr ""))
+  (lib (name "pesd")(type "KiCad")(uri "${KIPRJMOD}/libs/pesd.pretty")(options "")(descr ""))
+  (lib (name "can")(type "KiCad")(uri "${KIPRJMOD}/libs/can.pretty")(options "")(descr ""))
+  (lib (name "fdn340p")(type "KiCad")(uri "${KIPRJMOD}/libs/fdn340p.pretty")(options "")(descr ""))
+)
