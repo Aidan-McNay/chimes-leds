@@ -3,8 +3,8 @@
 // =======================================================================
 // Declarations of the IMU functions
 
-#ifndef IMU_H
-#define IMU_H
+#ifndef LIGHT_H
+#define LIGHT_H
 
 #include "hardware/i2c.h"
 #include "pico/stdlib.h"
@@ -50,7 +50,7 @@ class LightSensor {
     TIMES_1 = 0b00,
     DIV_4 = 0b11,
     DIV_8 = 0b10,
-  } gain;
+  } gain_t;
 
   // Integration time (MS)
   typedef enum {
@@ -60,7 +60,7 @@ class LightSensor {
     MS_100 = 0b0000,
     MS_50  = 0b1000,
     MS_25  = 0b1100,
-  } integration_time;
+  } integration_time_t;
 
   // Power saving mode
   typedef enum  {
@@ -69,15 +69,17 @@ class LightSensor {
     MORE = 0b101,
     MOST = 0b111,
     OFF = 0b000
-  } power_save_mode;
+  } power_save_mode_t;
 
 
   LightSensor( int gpio_sda, int gpio_scl );
   void fetch();
 
-  void configure(integration_time it, gain g);
+  void configure(integration_time_t it, gain_t g);
+  void set_power_mode(power_save_mode_t mode);
 
-  void set_power_mode(power_save_mode mode);
+  // Get the light sensed in lux
+  fix15 sample();
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Protected helper functions
@@ -85,6 +87,12 @@ class LightSensor {
  protected:
   void write( uint8_t addr, uint16_t data );
   void read( uint8_t addr, uint16_t *dest );
+
+  // Gets the resolution of the sensor
+  fix15 resolution();
+
+  gain_t gain;
+  integration_time_t integration_time;
 };
 
-#endif  // IMU_H
+#endif  // LIGHT_H

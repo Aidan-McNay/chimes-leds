@@ -5,4 +5,5 @@
 
 set(APP_FILES
   blink.cpp
+  sensor.cpp
 PARENT_SCOPE)

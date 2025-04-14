@@ -53,5 +53,5 @@ fix15 ADC::sample() {
   uint16_t adc_val = (uint16_t) adc_hw->result;  // Max of 4095 (12b ADC)
 
   int adc_val_int = (int)(adc_val);
-  return divfix(int2fix15(adc_val_int), int2fix15(4095));
+  return divfix15(int2fix15(adc_val_int), int2fix15(4095));
 }

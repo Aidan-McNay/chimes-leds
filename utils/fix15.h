@@ -8,6 +8,8 @@
 #ifndef FIX15_H
 #define FIX15_H
 
+#include <math.h>
+
 typedef signed int fix15;
 #define multfix15(a, b) \
   ((fix15)((((signed long long)(a)) * ((signed long long)(b))) >> 15))
@@ -17,6 +19,7 @@ typedef signed int fix15;
 #define int2fix15(a) ((fix15)(a << 15))
 #define fix2int15(a) ((int)(a >> 15))
 #define char2fix15(a) (fix15)(((fix15)(a)) << 15)
-#define divfix(a, b) (fix15)((((signed long long)(a)) << 15) / (b))
+#define divfix15(a, b) (fix15)((((signed long long)(a)) << 15) / (b))
+#define log10fix(a) float2fix15(log10(fix2float15(a)))
 
 #endif  // FIX15_H

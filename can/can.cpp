@@ -50,7 +50,9 @@ unsigned int dummy_dest   = 0;
 
 CAN::CAN( unsigned short my_arbitration, unsigned short arbitration,
           unsigned short network_broadcast )
-    : my_arbitration( my_arbitration ),
+    : 
+      packet_handler( NULL ),
+      my_arbitration( my_arbitration ),
       arbitration( arbitration ),
       network_broadcast( network_broadcast ),
       tx_idle_time( 500 ),
@@ -68,7 +70,7 @@ CAN::CAN( unsigned short my_arbitration, unsigned short arbitration,
 // ----------------------------------------------------------------------
 
 // ISR entered at the end of packet transmit
-void CAN::tx_handler()
+void CAN::handle_tx()
 {
   // Abort/reset DMA channel, clear FIFO, clear PIO irq
   resetTransmitter();
@@ -80,7 +82,7 @@ void CAN::tx_handler()
 }
 
 // ISR entered when a packet is available for attempted receipt
-void CAN::rx_handler()
+void CAN::handle_rx()
 {
   // Abort/reset DMA channel
   resetReceiver();
@@ -91,6 +93,12 @@ void CAN::rx_handler()
   else {
     number_missed += 1;
   }
+
+  // Call the packet handler
+  if ( packet_handler ) {
+    packet_handler( &rx_packet_unstuffed[4], rx_packet_unstuffed[3] );
+  }
+
   // Clear the interrupt to receive the next message
   acceptNewPacket();
 }
@@ -278,6 +286,12 @@ void CAN::bitStuff( unsigned short* unstuffed, unsigned short* stuffed )
 // Computes and appends the checksum, then appends the EOF.
 void CAN::sendPacket()
 {
+  while ( unsafe_to_tx ) {
+    // Wait for the previous packet to be sent
+  }
+
+  unsafe_to_tx = 1;  // Set flag to indicate unsafe to transmit
+
   int i;
   // Load arbitration
   tx_packet_unstuffed[0] = arbitration;

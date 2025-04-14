@@ -5,4 +5,5 @@
 
 set(SRC_FILES
   light.cpp
+  microphone.cpp
 PARENT_SCOPE)
