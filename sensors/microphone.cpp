@@ -1,4 +1,4 @@
-#include "adc/adc.h"
+#include "interface/adc.h"
 #include "sensors/microphone.h"
 
 // ----------------------------------------------------------------------

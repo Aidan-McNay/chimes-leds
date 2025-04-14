@@ -4,7 +4,7 @@
 
 class ADC {
  public:
-  ADC(int gpio_pin = 26);
+  ADC(int gpio_pin);
 
 
   fix15 sample();

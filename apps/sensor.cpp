@@ -13,7 +13,7 @@
 #include "can/can.h"
 // Protothreads
 #include "utils/pt_cornell_rp2040_v1.h"
-#include "identities.h"
+#include "utils/can_interface.h"
 
 // Sensors
 #include "sensors/light.h"
@@ -22,21 +22,18 @@
 #define GPIO_MIC 26
 #define LIGHT_SDA 27
 #define LIGHT_SCL 28
+#define CAN_TX 5
+#define CAN_TRANSCEIVER 22
 // Microphone voltage
 #define MIC_VOLTAGE float2fix15(3.3)
 
-typedef enum {
-    LIGHT = 0x01, // Request light sensor data
-    SOUND = 0x02, // Request sound sensor data
-} sensor_read_type_t;
 
-
-CAN can_bus( SENSOR_ARBITRATION, CORE_ARBITRATION, NETWORK_BROADCAST ) ;
+CAN can_bus( SENSOR_ARBITRATION, NETWORK_BROADCAST, CAN_TX, CAN_TRANSCEIVER ) ;
 Microphone mic( GPIO_MIC ) ;
 LightSensor light_sensor( LIGHT_SDA, LIGHT_SCL ) ;
 
 // Send a packet with a fix15 data (sound or light value)
-void send_packet (sensor_read_type_t typ, fix15 value) {
+void send_packet (sensor_msg_t typ, fix15 value) {
     // Create a packet to send sound data
     unsigned short packet[3];
 
@@ -60,22 +57,22 @@ void read_packet( const unsigned short* packet, const unsigned char len ) {
 
     if ( len == 1 ) {
         fix15 value;
-        sensor_read_type_t typ = (sensor_read_type_t) packet[0];
+        sensor_msg_t typ = (sensor_msg_t) packet[0];
         switch ( typ ) {
             case LIGHT:
                 // Send the light sensor
                 value = light_sensor.sample() ;
+                send_packet(typ, value) ;
                 break;
             case SOUND:
                 // Send the sound sensor
                 value = mic.sample() ;
+                send_packet(typ, value) ;
                 break;
             default:
                 printf("Invalid packet type\n") ;
                 break;
         }
-
-        send_packet(typ, value) ;
     }
     else {
         printf("Invalid packet length\n") ;
@@ -91,22 +88,6 @@ void tx_handler() {
 // ISR entered when a packet is available for attempted receipt.
 void rx_handler() {
     can_bus.handle_rx() ;
-}
-
-// Thread runs on core 0
-static PT_THREAD (protothread_watchdog(struct pt *pt))
-{
-    PT_BEGIN(pt);
-
-    // Enable the watchdog, requiring the watchdog to be updated every 1sec or the chip will reboot
-    // second arg is pause on debug which means the watchdog will pause when stepping through code
-    watchdog_enable(1000, 1);
-
-      while(1) {
-        sleep_ms(100) ;
-        watchdog_update();
-      } 
-  PT_END(pt);
 }
 
 // Main for core 0
@@ -126,7 +107,5 @@ int main() {
     // Setup the CAN receiver on core 0
     can_bus.setupCANRX(rx_handler) ;
 
-    // Add thread to scheduler, and start it
-    pt_add_thread(protothread_watchdog) ;
     pt_schedule_start ;
 }

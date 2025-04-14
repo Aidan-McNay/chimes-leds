@@ -48,12 +48,15 @@ unsigned int dummy_dest   = 0;
 // Initialize CAN driver
 // ----------------------------------------------------------------------
 
-CAN::CAN( unsigned short my_arbitration, unsigned short arbitration,
-          unsigned short network_broadcast )
+CAN::CAN( unsigned short my_arbitration, unsigned short network_broadcast,
+          int can_tx, int transceiver_en
+)
     : 
       packet_handler( NULL ),
+      can_tx( can_tx ),
+      transceiver_en( transceiver_en ),
       my_arbitration( my_arbitration ),
-      arbitration( arbitration ),
+      arbitration( 0 ),
       network_broadcast( network_broadcast ),
       tx_idle_time( 500 ),
       reserve_byte( 0x55 ),
@@ -74,8 +77,6 @@ void CAN::handle_tx()
 {
   // Abort/reset DMA channel, clear FIFO, clear PIO irq
   resetTransmitter();
-  // Toggle the LED
-  gpio_put( LED_PIN, !gpio_get( LED_PIN ) );
   number_sent += 1;
   // Signal to thread that it is safe to transmit
   unsafe_to_tx = 0;
@@ -447,7 +448,7 @@ void CAN::setupIdleCheck()
 
   // Initialize the PIO program
   idle_check_program_init( pio_0, can_idle_check_sm, can_idle_offset,
-                           CAN_TX + 1, CLKDIV );
+                           can_tx + 1, CLKDIV );
 
   // Zero the irq 1
   pio_interrupt_clear( pio_0, 1 );
@@ -493,9 +494,9 @@ void CAN::setupIdleCheck()
 void CAN::setupCANTX( irq_handler_t handler )
 {
   // Power off transciever (avoids transients on bus)
-  gpio_init( TRANSCIEVER_EN );
-  gpio_set_dir( TRANSCIEVER_EN, GPIO_OUT );
-  gpio_put( TRANSCIEVER_EN, 0 );
+  gpio_init( transceiver_en );
+  gpio_set_dir( transceiver_en, GPIO_OUT );
+  gpio_put( transceiver_en, 0 );
 
   // Setup the idle checking system
   setupIdleCheck();
@@ -504,7 +505,7 @@ void CAN::setupCANTX( irq_handler_t handler )
   uint can_tx_offset = pio_add_program( pio_0, &can_tx_program );
 
   // Initialize the PIO program
-  can_tx_program_init( pio_0, can_tx_sm, can_tx_offset, CAN_TX, CLKDIV );
+  can_tx_program_init( pio_0, can_tx_sm, can_tx_offset, can_tx, CLKDIV );
 
   // Setup interrupts for TX machine
   pio_interrupt_clear( pio_0, 0 );
@@ -537,7 +538,7 @@ void CAN::setupCANTX( irq_handler_t handler )
   sleep_ms( 1 );
 
   // Power on transciever
-  gpio_put( TRANSCIEVER_EN, 1 );
+  gpio_put( transceiver_en, 1 );
 }
 
 // Set up CAN RX machine
@@ -547,7 +548,7 @@ void CAN::setupCANRX( irq_handler_t handler )
   uint can_rx_offset = pio_add_program( pio_1, &can_rx_program );
 
   // Initialize the PIO programs
-  can_rx_program_init( pio_1, can_rx_sm, can_rx_offset, CAN_TX + 1,
+  can_rx_program_init( pio_1, can_rx_sm, can_rx_offset, can_tx + 1,
                        CLKDIV );
 
   // Setup interrupts for RX machine

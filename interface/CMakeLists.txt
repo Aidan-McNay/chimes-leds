@@ -5,4 +5,7 @@
 
 set(SRC_FILES
   adc.cpp
+  switch.cpp
+  led.cpp
+  pwm.cpp
 PARENT_SCOPE)

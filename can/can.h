@@ -12,14 +12,6 @@
   #include "hardware/pio.h"
 
   // ----------------------------------------------------------------------
-  // Define Pins
-  // ----------------------------------------------------------------------
-
-  #define CAN_TX 6  // CAN RX is at CAN_TX+1
-  #define LED_PIN 25
-  #define TRANSCIEVER_EN 22
-
-  // ----------------------------------------------------------------------
   // CAN parameters
   // ----------------------------------------------------------------------
 
@@ -56,8 +48,8 @@
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   public:
-    CAN( unsigned short my_arbitration, unsigned short arbitration,
-        unsigned short network_broadcast );
+    // CAN RX is at CAN_TX+1
+    CAN( unsigned short my_arbitration, unsigned short network_broadcast, int can_tx, int transceiver_en );
 
     void set_callback ( packet_handler_t handler )
     {
@@ -166,6 +158,7 @@
 
   protected:
     packet_handler_t packet_handler;  // Pointer to the packet handler function
+    int can_tx, transceiver_en; // GPIOs for CAN interface
     unsigned short my_arbitration, arbitration, network_broadcast;
     unsigned int tx_idle_time;  // time to wait (in bit times) for bus to be
                                 // idle before TX

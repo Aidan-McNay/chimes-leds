@@ -116,7 +116,7 @@ endfunction()
 set(SUBDIRS
   can
   ui
-  adc
+  interface
   utils
   wifi
   sensors
