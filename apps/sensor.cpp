@@ -54,7 +54,7 @@ void send_packet (sensor_read_type_t typ, fix15 value) {
 }
 
 
-void read_packet( const unsigned char* packet, unsigned char len ) {
+void read_packet( const unsigned short* packet, const unsigned char len ) {
     // The length should be 1 here - the only commands we should recieve
     // are to request sensor data of certain types
 

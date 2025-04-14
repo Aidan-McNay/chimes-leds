@@ -24,8 +24,9 @@
   // ----------------------------------------------------------------------
 
   // Size of TX buffer
-  #define MAX_PAYLOAD_SIZE 16
-  #define MAX_PACKET_LEN ( MAX_PAYLOAD_SIZE + 8 )
+  // Maximum size of payload defined in shorts
+  #define MAX_PAYLOAD_SIZE 8
+  #define MAX_PACKET_LEN ( MAX_PAYLOAD_SIZE + 4 )
   #define MAX_STUFFED_PACKET_LEN \
     ( MAX_PACKET_LEN + ( MAX_PACKET_LEN >> 1 ) )
 
@@ -43,7 +44,7 @@
   // ----------------------------------------------------------------------
   // Callback type for packet handler
   // ----------------------------------------------------------------------
-  typedef void ( *packet_handler_t )( const unsigned char* packet, unsigned char len );
+  typedef void ( *packet_handler_t )( const unsigned short* packet, const unsigned char len );
 
   // ----------------------------------------------------------------------
   // CAN Bus
@@ -62,7 +63,7 @@
     {
       packet_handler = handler;
     }
-    
+
     void set_my_arbitration( unsigned short my_arbitration )
     {
       this->my_arbitration = my_arbitration;
@@ -77,7 +78,7 @@
     }
     void set_payload( unsigned short* new_payload, unsigned char len )
     {
-      payload_len = len * sizeof(short);
+      payload_len = len;
       for ( int i = 0; i < len; i++ ) {
         payload[i] = new_payload[i];
       }
@@ -93,10 +94,6 @@
     unsigned short get_network_broadcast()
     {
       return network_broadcast;
-    }
-    unsigned short get_payload()
-    {
-      return payload[MAX_PAYLOAD_SIZE];
     }
 
     // User interrupt service routine
@@ -138,20 +135,19 @@
 
     // Computes the checksum
     unsigned short culCalcCRC( char crcData, unsigned short crcReg );
-
-    // Packet transmission
+    
+    // Packet stuffing
     unsigned short getBitShort( unsigned short* shorty,
                                 unsigned char   bitnum );
     void modifyBitShort( unsigned short* shorty, unsigned char bitnum,
                         unsigned short value );
+
+    // Packet transmission
     void bitStuff( unsigned short* unstuffed, unsigned short* stuffed );
     void sendPacket();
 
     // Packet reception
-    unsigned char getBitChar( unsigned char* byte, unsigned char bitnum );
-    void          modifyBitChar( unsigned char* byte, unsigned char bitnum,
-                                unsigned char value );
-    void unBitStuff( unsigned char* stuffed, unsigned char* unstuffed );
+    void unBitStuff( unsigned short* stuffed, unsigned short* unstuffed );
     unsigned char attemptPacketReceive();
 
     // Driver interrupt service routine (ISR)
