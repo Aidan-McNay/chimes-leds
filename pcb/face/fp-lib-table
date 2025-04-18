@@ -4,4 +4,6 @@
   (lib (name "pesd")(type "KiCad")(uri "${KIPRJMOD}/libs/pesd.pretty")(options "")(descr ""))
   (lib (name "can")(type "KiCad")(uri "${KIPRJMOD}/libs/can.pretty")(options "")(descr ""))
   (lib (name "fdn340p")(type "KiCad")(uri "${KIPRJMOD}/libs/fdn340p.pretty")(options "")(descr ""))
+  (lib (name "dmg2305ux")(type "KiCad")(uri "${KIPRJMOD}/libs/dmg2305ux.pretty")(options "")(descr ""))
+  (lib (name "282856-2")(type "KiCad")(uri "${KIPRJMOD}/libs/282856-2.pretty")(options "")(descr ""))
 )
