@@ -3010,6 +3010,126 @@
 				)
 			)
 		)
+		(symbol "power:+3V3"
+			(power)
+			(pin_numbers hide)
+			(pin_names
+				(offset 0) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#PWR"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "+3V3"
+				(at 0 3.556 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"+3V3\""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "+3V3_0_1"
+				(polyline
+					(pts
+						(xy -0.762 1.27) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "+3V3_1_1"
+				(pin power_in line
+					(at 0 0 90)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "power:GND"
 			(power)
 			(pin_numbers hide)
@@ -5061,6 +5181,12 @@
 		(uuid "536438b9-d441-4812-bd20-7288fccfd640")
 	)
 	(junction
+		(at 76.2 138.43)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "59435639-2bec-47e6-97f4-2970bbb1cb14")
+	)
+	(junction
 		(at 72.39 128.27)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5185,10 +5311,6 @@
 	(no_connect
 		(at 73.66 135.89)
 		(uuid "7339042e-72f6-41aa-953c-c1be8588627b")
-	)
-	(no_connect
-		(at 73.66 138.43)
-		(uuid "8218d221-2c5a-46f0-ac46-0e23804a4f7c")
 	)
 	(no_connect
 		(at 27.94 143.51)
@@ -5802,7 +5924,7 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 138.43) (xy 73.66 138.43)
+			(xy 68.58 138.43) (xy 76.2 138.43)
 		)
 		(stroke
 			(width 0)
@@ -6861,73 +6983,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:VD")
-		(at 233.68 36.83 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "0dbb05c7-b5dd-4fd3-8cc2-410328b634f4")
-		(property "Reference" "#PWR019"
-			(at 237.49 36.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "VSYS"
-			(at 229.87 36.8299 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 233.68 36.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 233.68 36.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"VD\""
-			(at 233.68 36.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "2f2e280e-d247-4f27-a93f-a3010292389d")
-		)
-		(instances
-			(project "sensor"
-				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
-					(reference "#PWR019")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:PWR_FLAG")
 		(at 72.39 128.27 0)
 		(unit 1)
@@ -6994,17 +7049,17 @@
 		)
 	)
 	(symbol
-		(lib_id "power:VD")
-		(at 190.5 45.72 270)
+		(lib_id "power:+3V3")
+		(at 76.2 138.43 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "0f36a5ab-e17b-4abe-8d93-112ed86b1b09")
-		(property "Reference" "#PWR015"
-			(at 186.69 45.72 0)
+		(uuid "1883cf2b-91f6-4705-9fb3-a5e960f7a0db")
+		(property "Reference" "#PWR025"
+			(at 76.2 142.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7012,17 +7067,16 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "VSYS"
-			(at 194.31 45.7199 90)
+		(property "Value" "+3V3"
+			(at 76.2 133.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
 			)
 		)
 		(property "Footprint" ""
-			(at 190.5 45.72 0)
+			(at 76.2 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7031,7 +7085,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 190.5 45.72 0)
+			(at 76.2 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7039,8 +7093,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \"VD\""
-			(at 190.5 45.72 0)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 76.2 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7049,12 +7103,78 @@
 			)
 		)
 		(pin "1"
-			(uuid "8eb0b82d-b576-4e55-a6b7-8535cff7e970")
+			(uuid "34a61298-fb7b-4c87-8f64-d4a6ca89c6c0")
 		)
 		(instances
 			(project "sensor"
 				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
-					(reference "#PWR015")
+					(reference "#PWR025")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 66.04 59.69 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "19a38485-33a7-43d4-be63-cf3dd1b6ab33")
+		(property "Reference" "#PWR04"
+			(at 66.04 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 66.04 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 66.04 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 66.04 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 66.04 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "209fc1cf-1b4b-44d7-93fe-b58a558f90e2")
+		)
+		(instances
+			(project "sensor"
+				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
+					(reference "#PWR04")
 					(unit 1)
 				)
 			)
@@ -7496,17 +7616,17 @@
 		)
 	)
 	(symbol
-		(lib_id "power:VD")
-		(at 20.32 38.1 0)
+		(lib_id "power:+3V3")
+		(at 190.5 60.96 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "3b877320-b981-446a-ad3f-60abc1156bdb")
-		(property "Reference" "#PWR01"
-			(at 20.32 41.91 0)
+		(uuid "4529bfdd-6a96-4b52-bb9b-76075d4197a4")
+		(property "Reference" "#PWR016"
+			(at 186.69 60.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7514,16 +7634,17 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "VSYS"
-			(at 20.32 33.02 0)
+		(property "Value" "+3V3"
+			(at 194.31 60.9599 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" ""
-			(at 20.32 38.1 0)
+			(at 190.5 60.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7532,7 +7653,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 20.32 38.1 0)
+			(at 190.5 60.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7540,8 +7661,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \"VD\""
-			(at 20.32 38.1 0)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 190.5 60.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7550,12 +7671,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "444e5f1b-cd5c-4cf6-9bf1-8bdbd911e7fd")
+			(uuid "04add4da-424b-4ee9-b8ef-8f91f3cd4c09")
 		)
 		(instances
 			(project "sensor"
 				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
-					(reference "#PWR01")
+					(reference "#PWR016")
 					(unit 1)
 				)
 			)
@@ -7690,6 +7811,72 @@
 			(project ""
 				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
 					(reference "#PWR018")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 170.18 76.2 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "4faaaa86-b78d-4a87-a04f-4a2e8ef27fda")
+		(property "Reference" "#PWR017"
+			(at 170.18 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 170.18 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 170.18 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 170.18 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 170.18 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "35ccb1ea-0aba-4680-8b17-f9d3ddf73675")
+		)
+		(instances
+			(project "sensor"
+				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
+					(reference "#PWR017")
 					(unit 1)
 				)
 			)
@@ -7965,6 +8152,73 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+3V3")
+		(at 190.5 45.72 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "63430397-7a25-4af7-989d-5ffa5a4f9422")
+		(property "Reference" "#PWR015"
+			(at 186.69 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 194.31 45.7199 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 190.5 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 190.5 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 190.5 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d4454c10-c1be-488f-90b1-c51e595bfe14")
+		)
+		(instances
+			(project "sensor"
+				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
+					(reference "#PWR015")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C")
 		(at 48.26 80.01 0)
 		(unit 1)
@@ -8095,6 +8349,72 @@
 			(project "sensor"
 				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
 					(reference "#PWR03")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 114.3 43.18 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "6d353b7e-a282-4ff0-ae55-9d71aa5ae785")
+		(property "Reference" "#PWR07"
+			(at 114.3 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 114.3 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 114.3 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 114.3 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 114.3 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "350a2b51-baca-45dc-8cd0-6ff172abaad6")
+		)
+		(instances
+			(project "sensor"
+				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
+					(reference "#PWR07")
 					(unit 1)
 				)
 			)
@@ -8734,6 +9054,73 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+3V3")
+		(at 233.68 36.83 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "9fc9ee4f-9132-4d33-b504-593de3c411be")
+		(property "Reference" "#PWR019"
+			(at 237.49 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 229.87 36.8299 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 233.68 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.68 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 233.68 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "95c4be9c-5140-4523-9fa5-8f5a0e21a0d7")
+		)
+		(instances
+			(project "sensor"
+				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
+					(reference "#PWR019")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 88.9 83.82 0)
 		(unit 1)
@@ -9000,6 +9387,72 @@
 			(project "sensor"
 				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
 					(reference "#PWR022")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 20.32 38.1 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "bcf057a8-4624-417a-a48e-4c85bb7bf08b")
+		(property "Reference" "#PWR01"
+			(at 20.32 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 20.32 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 20.32 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 20.32 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 20.32 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "ef9df4d9-7a02-4ee2-bec5-be3c2a3395d7")
+		)
+		(instances
+			(project "sensor"
+				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
+					(reference "#PWR01")
 					(unit 1)
 				)
 			)
@@ -9484,72 +9937,6 @@
 	)
 	(symbol
 		(lib_id "power:VD")
-		(at 66.04 59.69 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "d20df54c-39b3-4c81-8e67-4858b5964053")
-		(property "Reference" "#PWR04"
-			(at 66.04 63.5 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "VSYS"
-			(at 66.04 54.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 66.04 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 66.04 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"VD\""
-			(at 66.04 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "46c3df4c-7d0a-4d76-bfe3-4e9079fdb51d")
-		)
-		(instances
-			(project "sensor"
-				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
-					(reference "#PWR04")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:VD")
 		(at 73.66 130.81 270)
 		(unit 1)
 		(exclude_from_sim no)
@@ -9676,72 +10063,6 @@
 			(project "sensor"
 				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
 					(reference "#PWR023")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:VD")
-		(at 170.18 76.2 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "d75b0957-bf60-413d-b755-07a45d1efd8d")
-		(property "Reference" "#PWR017"
-			(at 170.18 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "VSYS"
-			(at 170.18 71.12 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 170.18 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 170.18 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"VD\""
-			(at 170.18 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "59401048-fb91-43f8-82d3-fe2f8d2dacb4")
-		)
-		(instances
-			(project "sensor"
-				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
-					(reference "#PWR017")
 					(unit 1)
 				)
 			)
@@ -9880,17 +10201,17 @@
 		)
 	)
 	(symbol
-		(lib_id "power:VD")
-		(at 114.3 43.18 0)
+		(lib_id "power:PWR_FLAG")
+		(at 76.2 138.43 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "e4fe9008-a144-45f0-92c5-4876c3c87398")
-		(property "Reference" "#PWR07"
-			(at 114.3 46.99 0)
+		(uuid "e7cadcc0-4eeb-42bd-8c99-b0b44116a0f6")
+		(property "Reference" "#FLG05"
+			(at 76.2 140.335 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9898,8 +10219,8 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "VSYS"
-			(at 114.3 38.1 0)
+		(property "Value" "PWR_FLAG"
+			(at 76.2 143.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9907,7 +10228,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 114.3 43.18 0)
+			(at 76.2 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9915,8 +10236,8 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" ""
-			(at 114.3 43.18 0)
+		(property "Datasheet" "~"
+			(at 76.2 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9924,8 +10245,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \"VD\""
-			(at 114.3 43.18 0)
+		(property "Description" "Special symbol for telling ERC where power comes from"
+			(at 76.2 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9934,12 +10255,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "47f980b5-460c-488d-abf5-2649d70450a0")
+			(uuid "32bcc333-948e-4931-91da-300fc7be4686")
 		)
 		(instances
-			(project "sensor"
+			(project ""
 				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
-					(reference "#PWR07")
+					(reference "#FLG05")
 					(unit 1)
 				)
 			)
@@ -10224,73 +10545,6 @@
 			(project "sensor"
 				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
 					(reference "#PWR08")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:VD")
-		(at 190.5 60.96 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "fb21a1ec-1334-454e-a317-219edc008f68")
-		(property "Reference" "#PWR016"
-			(at 186.69 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "VSYS"
-			(at 194.31 60.9599 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 190.5 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 190.5 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"VD\""
-			(at 190.5 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "5658c851-9957-4820-96c3-e400c8ba8616")
-		)
-		(instances
-			(project "sensor"
-				(path "/ef390164-5c73-4363-9de1-64d5c9b8dbbe"
-					(reference "#PWR016")
 					(unit 1)
 				)
 			)

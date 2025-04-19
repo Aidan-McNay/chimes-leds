@@ -1457,7 +1457,7 @@
 				)
 			)
 		)
-		(symbol "Regulator_Linear:NCP1117-3.3_SOT223"
+		(symbol "Regulator_Linear:NCP1117-5.0_SOT223"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -1469,7 +1469,7 @@
 					)
 				)
 			)
-			(property "Value" "NCP1117-3.3_SOT223"
+			(property "Value" "NCP1117-5.0_SOT223"
 				(at 0 3.175 0)
 				(effects
 					(font
@@ -1496,7 +1496,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "1A Low drop-out regulator, Fixed Output 3.3V, SOT-223"
+			(property "Description" "1A Low drop-out regulator, Fixed Output 5V, SOT-223"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1505,7 +1505,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_keywords" "REGULATOR LDO 3.3V"
+			(property "ki_keywords" "REGULATOR LDO 5V"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1523,7 +1523,7 @@
 					(hide yes)
 				)
 			)
-			(symbol "NCP1117-3.3_SOT223_0_1"
+			(symbol "NCP1117-5.0_SOT223_0_1"
 				(rectangle
 					(start -5.08 -5.08)
 					(end 5.08 1.905)
@@ -1536,7 +1536,7 @@
 					)
 				)
 			)
-			(symbol "NCP1117-3.3_SOT223_1_1"
+			(symbol "NCP1117-5.0_SOT223_1_1"
 				(pin power_in line
 					(at 0 -7.62 90)
 					(length 2.54)
@@ -3993,6 +3993,126 @@
 				)
 			)
 		)
+		(symbol "power:+3V3"
+			(power)
+			(pin_numbers hide)
+			(pin_names
+				(offset 0) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#PWR"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "+3V3"
+				(at 0 3.556 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"+3V3\""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "+3V3_0_1"
+				(polyline
+					(pts
+						(xy -0.762 1.27) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "+3V3_1_1"
+				(pin power_in line
+					(at 0 0 90)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "power:GND"
 			(power)
 			(pin_numbers hide)
@@ -4433,6 +4553,12 @@
 		(uuid "12e87985-bcf6-4fe2-a690-776dab608d84")
 	)
 	(junction
+		(at 76.2 138.43)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "15cb47c3-a394-49b2-ae43-f66e470cda7b")
+	)
+	(junction
 		(at 106.68 57.15)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4625,10 +4751,6 @@
 	(no_connect
 		(at 27.94 128.27)
 		(uuid "e4331be7-26ab-431d-a02c-3fb6f2c30ed1")
-	)
-	(no_connect
-		(at 73.66 138.43)
-		(uuid "ed4cc6f5-6db3-4cc8-8fd2-87e8117fbce0")
 	)
 	(no_connect
 		(at 27.94 166.37)
@@ -4910,7 +5032,7 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 138.43) (xy 73.66 138.43)
+			(xy 68.58 138.43) (xy 76.2 138.43)
 		)
 		(stroke
 			(width 0)
@@ -6840,6 +6962,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+3V3")
+		(at 20.32 38.1 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "1f5fcf8c-680e-4961-b87e-ee6d9e16aa82")
+		(property "Reference" "#PWR029"
+			(at 20.32 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 20.32 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 20.32 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 20.32 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 20.32 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "6311a914-74a1-40ef-a7b6-ba628c609554")
+		)
+		(instances
+			(project ""
+				(path "/1f1f56e0-2bff-4f08-b1e8-4de5874165db"
+					(reference "#PWR029")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C")
 		(at 100.33 162.56 0)
 		(mirror y)
@@ -7114,72 +7302,6 @@
 			(project ""
 				(path "/1f1f56e0-2bff-4f08-b1e8-4de5874165db"
 					(reference "#FLG05")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:VD")
-		(at 66.04 59.69 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "317123d2-9b56-492e-803b-aaf6adbf5e65")
-		(property "Reference" "#PWR06"
-			(at 66.04 63.5 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "VSYS"
-			(at 66.04 54.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 66.04 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 66.04 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"VD\""
-			(at 66.04 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "43099b51-2ac8-4a4b-a2a3-d155f6dfd824")
-		)
-		(instances
-			(project "face"
-				(path "/1f1f56e0-2bff-4f08-b1e8-4de5874165db"
-					(reference "#PWR06")
 					(unit 1)
 				)
 			)
@@ -8445,6 +8567,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+3V3")
+		(at 114.3 43.18 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "62474221-ad37-4f44-829d-5854297a5c4d")
+		(property "Reference" "#PWR01"
+			(at 114.3 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 114.3 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 114.3 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 114.3 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 114.3 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "9649874e-2dac-476c-a729-54c42f5f0968")
+		)
+		(instances
+			(project "face"
+				(path "/1f1f56e0-2bff-4f08-b1e8-4de5874165db"
+					(reference "#PWR01")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:PWR_FLAG")
 		(at 153.67 156.21 270)
 		(unit 1)
@@ -8649,72 +8837,6 @@
 			(project "face"
 				(path "/1f1f56e0-2bff-4f08-b1e8-4de5874165db"
 					(reference "Q5")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:VD")
-		(at 114.3 43.18 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "7b78a1f9-b046-4f22-b199-f48829750a68")
-		(property "Reference" "#PWR012"
-			(at 114.3 46.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "VSYS"
-			(at 114.3 38.1 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 114.3 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 114.3 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"VD\""
-			(at 114.3 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "61072a55-d1a4-44bf-b57b-58c6d824faf7")
-		)
-		(instances
-			(project "face"
-				(path "/1f1f56e0-2bff-4f08-b1e8-4de5874165db"
-					(reference "#PWR012")
 					(unit 1)
 				)
 			)
@@ -8988,6 +9110,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+3V3")
+		(at 66.04 59.69 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "8a76fb36-cb35-4101-91c2-f8c542d508c7")
+		(property "Reference" "#PWR06"
+			(at 66.04 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 66.04 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 66.04 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 66.04 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 66.04 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "63727e21-e5ba-4709-b894-ee3969fcdc88")
+		)
+		(instances
+			(project "face"
+				(path "/1f1f56e0-2bff-4f08-b1e8-4de5874165db"
+					(reference "#PWR06")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 162.56 82.55 0)
 		(unit 1)
@@ -9006,7 +9194,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "60Ω"
+		(property "Value" "240Ω"
 			(at 165.1 83.8199 0)
 			(effects
 				(font
@@ -9015,7 +9203,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 160.782 82.55 90)
 			(effects
 				(font
@@ -9266,72 +9454,6 @@
 			(project "face"
 				(path "/1f1f56e0-2bff-4f08-b1e8-4de5874165db"
 					(reference "R3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:VD")
-		(at 20.32 38.1 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "9a5fecc0-370f-43ed-ab65-854d7690381d")
-		(property "Reference" "#PWR01"
-			(at 20.32 41.91 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "VSYS"
-			(at 20.32 33.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 20.32 38.1 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 20.32 38.1 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"VD\""
-			(at 20.32 38.1 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "44f3e175-0e39-4b03-a33b-f4c35e6cd45e")
-		)
-		(instances
-			(project "face"
-				(path "/1f1f56e0-2bff-4f08-b1e8-4de5874165db"
-					(reference "#PWR01")
 					(unit 1)
 				)
 			)
@@ -9737,6 +9859,73 @@
 	)
 	(symbol
 		(lib_id "power:PWR_FLAG")
+		(at 76.2 138.43 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b65f647e-515c-4f5a-94de-7aaa7b3493d8")
+		(property "Reference" "#FLG04"
+			(at 78.105 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "PWR_FLAG"
+			(at 80.01 138.4299 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 76.2 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 76.2 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Special symbol for telling ERC where power comes from"
+			(at 76.2 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c3238dd5-d9ef-40e0-8df8-ff63ebbc17a7")
+		)
+		(instances
+			(project ""
+				(path "/1f1f56e0-2bff-4f08-b1e8-4de5874165db"
+					(reference "#FLG04")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:PWR_FLAG")
 		(at 44.45 76.2 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -9820,7 +10009,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "60Ω"
+		(property "Value" "240Ω"
 			(at 165.1 110.4899 0)
 			(effects
 				(font
@@ -9829,7 +10018,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 160.782 109.22 90)
 			(effects
 				(font
@@ -9936,77 +10125,6 @@
 			(project "face"
 				(path "/1f1f56e0-2bff-4f08-b1e8-4de5874165db"
 					(reference "C3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Regulator_Linear:NCP1117-3.3_SOT223")
-		(at 110.49 157.48 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "c4c5396b-6d84-4176-af5e-ae5af322d597")
-		(property "Reference" "U4"
-			(at 110.49 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "NCP1117-3.3_SOT223"
-			(at 110.49 153.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-223-3_TabPin2"
-			(at 110.49 152.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://www.onsemi.com/pub_link/Collateral/NCP1117-D.PDF"
-			(at 113.03 163.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "1A Low drop-out regulator, Fixed Output 3.3V, SOT-223"
-			(at 110.49 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "1e2659cb-e692-4eb7-946a-808899e67985")
-		)
-		(pin "2"
-			(uuid "283877fb-a92e-444c-a3e6-ff1440b29922")
-		)
-		(pin "3"
-			(uuid "645e2500-9b3c-4bf8-a708-2fc15915b592")
-		)
-		(instances
-			(project ""
-				(path "/1f1f56e0-2bff-4f08-b1e8-4de5874165db"
-					(reference "U4")
 					(unit 1)
 				)
 			)
@@ -10229,6 +10347,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+3V3")
+		(at 76.2 138.43 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d398e69f-f833-42aa-a9fd-92c8e8b479e5")
+		(property "Reference" "#PWR012"
+			(at 76.2 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 76.2 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 76.2 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 76.2 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 76.2 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "6113cf03-368a-41b9-8e36-e39f9c79b59c")
+		)
+		(instances
+			(project "face"
+				(path "/1f1f56e0-2bff-4f08-b1e8-4de5874165db"
+					(reference "#PWR012")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 114.3 80.01 0)
 		(unit 1)
@@ -10289,6 +10473,77 @@
 			(project "face"
 				(path "/1f1f56e0-2bff-4f08-b1e8-4de5874165db"
 					(reference "#PWR013")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Regulator_Linear:NCP1117-5.0_SOT223")
+		(at 110.49 157.48 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d5d7c03b-c76c-49ec-965e-f7118fb04444")
+		(property "Reference" "U6"
+			(at 110.49 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "NCP1117-5.0_SOT223"
+			(at 110.49 153.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-223-3_TabPin2"
+			(at 110.49 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.onsemi.com/pub_link/Collateral/NCP1117-D.PDF"
+			(at 113.03 163.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "1A Low drop-out regulator, Fixed Output 5V, SOT-223"
+			(at 110.49 157.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "3"
+			(uuid "e2728ac3-dba9-4ce2-bb85-c2fc6fd0d42e")
+		)
+		(pin "2"
+			(uuid "59727404-42d9-4c82-80fc-dfdd6893e5ac")
+		)
+		(pin "1"
+			(uuid "9a0a0470-6681-4d7e-85df-0736879ab5f0")
+		)
+		(instances
+			(project ""
+				(path "/1f1f56e0-2bff-4f08-b1e8-4de5874165db"
+					(reference "U6")
 					(unit 1)
 				)
 			)

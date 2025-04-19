@@ -9,4 +9,5 @@
   (lib (name "rm103772bcb")(type "KiCad")(uri "${KIPRJMOD}/libs/rm103772bcb.kicad_sym")(options "")(descr ""))
   (lib (name "os102011ms2qn1")(type "KiCad")(uri "${KIPRJMOD}/libs/os102011ms2qn1.kicad_sym")(options "")(descr ""))
   (lib (name "1729092")(type "KiCad")(uri "${KIPRJMOD}/libs/1729092.kicad_sym")(options "")(descr ""))
+  (lib (name "sn74hcs541dgsr")(type "KiCad")(uri "${KIPRJMOD}/libs/sn74hcs541dgsr.kicad_sym")(options "")(descr ""))
 )
