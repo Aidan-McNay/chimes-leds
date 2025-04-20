@@ -70,6 +70,7 @@ add_compile_options(-O3 -Wall -Wextra -Wno-unused-parameter)
 
 set(PICO_LIBS
   hardware_pio
+  hardware_pwm
   hardware_adc
   hardware_i2c
   pico_stdlib

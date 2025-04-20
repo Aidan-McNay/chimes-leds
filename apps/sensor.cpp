@@ -33,7 +33,7 @@ Microphone mic( GPIO_MIC ) ;
 LightSensor light_sensor( LIGHT_SDA, LIGHT_SCL ) ;
 
 // Send a packet with a fix15 data (sound or light value)
-void send_packet (sensor_msg_t typ, fix15 value) {
+void send_packet (can_msg_t typ, fix15 value) {
     // Create a packet to send sound data
     unsigned short packet[3];
 
@@ -57,14 +57,14 @@ void read_packet( const unsigned short* packet, const unsigned char len ) {
 
     if ( len == 1 ) {
         fix15 value;
-        sensor_msg_t typ = (sensor_msg_t) packet[0];
+        can_msg_t typ = (can_msg_t) packet[0];
         switch ( typ ) {
-            case LIGHT:
+            case SENSOR_LIGHT:
                 // Send the light sensor
                 value = light_sensor.sample() ;
                 send_packet(typ, value) ;
                 break;
-            case SOUND:
+            case SENSOR_SOUND:
                 // Send the sound sensor
                 value = mic.sample() ;
                 send_packet(typ, value) ;
