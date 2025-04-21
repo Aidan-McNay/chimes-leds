@@ -11,17 +11,17 @@
 // ----------------------------------------------------------------------
 
 // Assembled packet for transmission (unstuffed then stuffed)
-unsigned short  tx_packet_unstuffed[MAX_PACKET_LEN]       = { 0 };
-unsigned short  tx_packet_stuffed[MAX_STUFFED_PACKET_LEN] = { 0 };
+unsigned short  tx_packet_unstuffed[MAX_PACKET_LEN >> 1]       = { 0 };
+unsigned short  tx_packet_stuffed[MAX_STUFFED_PACKET_LEN >> 1] = { 0 };
 unsigned short* tx_packet_stuffed_pointer = &tx_packet_stuffed[0];
 
 // Buffer for received packets (stuffed then unstuffed)
-unsigned short  rx_packet_stuffed[MAX_STUFFED_PACKET_LEN] = { 0 };
-unsigned short  rx_packet_unstuffed[MAX_PACKET_LEN]       = { 0 };
-unsigned short* rx_packet_stuffed_pointer = &rx_packet_stuffed[0];
+unsigned char  rx_packet_stuffed[MAX_STUFFED_PACKET_LEN] = { 0 };
+unsigned short  rx_packet_unstuffed[MAX_PACKET_LEN >> 1]       = { 0 };
+unsigned char* rx_packet_stuffed_pointer = &rx_packet_stuffed[0];
 
 // For re-initializing these buffers
-unsigned short zero_packet[MAX_STUFFED_PACKET_LEN] = { 0 };
+unsigned char zero_packet[MAX_STUFFED_PACKET_LEN] = { 0 };
 
 // ----------------------------------------------------------------------
 // Define infrastructure globals
@@ -48,15 +48,10 @@ unsigned int dummy_dest   = 0;
 // Initialize CAN driver
 // ----------------------------------------------------------------------
 
-CAN::CAN( unsigned short my_arbitration, unsigned short network_broadcast,
-          int can_tx, int transceiver_en
-)
-    : 
-      packet_handler( NULL ),
-      can_tx( can_tx ),
-      transceiver_en( transceiver_en ),
-      my_arbitration( my_arbitration ),
-      arbitration( 0 ),
+CAN::CAN( unsigned short my_arbitration, unsigned short arbitration,
+          unsigned short network_broadcast )
+    : my_arbitration( my_arbitration ),
+      arbitration( arbitration ),
       network_broadcast( network_broadcast ),
       tx_idle_time( 500 ),
       reserve_byte( 0x55 ),
@@ -73,36 +68,31 @@ CAN::CAN( unsigned short my_arbitration, unsigned short network_broadcast,
 // ----------------------------------------------------------------------
 
 // ISR entered at the end of packet transmit
-void CAN::handle_tx()
+void CAN::tx_handler()
 {
   // Abort/reset DMA channel, clear FIFO, clear PIO irq
   resetTransmitter();
+  // Toggle the LED
+  gpio_put( LED_PIN, !gpio_get( LED_PIN ) );
   number_sent += 1;
   // Signal to thread that it is safe to transmit
   unsafe_to_tx = 0;
 }
 
 // ISR entered when a packet is available for attempted receipt
-void CAN::handle_rx()
-{
-  // Abort/reset DMA channel
-  resetReceiver();
-  // Attempt packet receipt
-  if ( attemptPacketReceive() ) {
-    number_received += 1;
-  }
-  else {
-    number_missed += 1;
-  }
-
-  // Call the packet handler
-  if ( packet_handler ) {
-    packet_handler( &rx_packet_unstuffed[4], rx_packet_unstuffed[3] );
-  }
-
-  // Clear the interrupt to receive the next message
-  acceptNewPacket();
+void CAN::rx_handler() {
+    // Abort/reset DMA channel
+    resetReceiver() ;
+    // Attempt packet receipt
+    if (attemptPacketReceive()) {
+        number_received += 1 ;
+    } else {
+        number_missed += 1 ;
+    }
+    // Clear the interrupt to receive the next message
+    acceptNewPacket() ;
 }
+
 
 // Computes the checksum over a series of bytes
 unsigned short CAN::culCalcCRC( char crcData, unsigned short crcReg )
@@ -222,7 +212,7 @@ void CAN::modifyBitShort( unsigned short* shorty, unsigned char bitnum,
 void CAN::bitStuff( unsigned short* unstuffed, unsigned short* stuffed )
 {
   // Clear the buffer
-  memcpy( &stuffed[0], &zero_packet[0], MAX_STUFFED_PACKET_LEN * sizeof(short) );
+  memcpy( &stuffed[0], &zero_packet[0], MAX_STUFFED_PACKET_LEN );
 
   // Variables for monitoring position in each buffer
   int stuffed_index   = 0;
@@ -287,26 +277,23 @@ void CAN::bitStuff( unsigned short* unstuffed, unsigned short* stuffed )
 // Computes and appends the checksum, then appends the EOF.
 void CAN::sendPacket()
 {
-  while ( unsafe_to_tx ) {
-    // Wait for the previous packet to be sent
-  }
-
-  unsafe_to_tx = 1;  // Set flag to indicate unsafe to transmit
-
-  int i;
   // Load arbitration
-  tx_packet_unstuffed[0] = arbitration;
+  tx_packet_unstuffed[0] = my_arbitration;
   // Load reserve byte and payload length
   tx_packet_unstuffed[1] =
       ( ( ( ( (unsigned short) reserve_byte ) << 8 ) & 0xFF00 ) |
-        ( ( (unsigned short) payload_len ) & 0x00FF ) );
+        ( ( (unsigned short) payload_len * 2 ) & 0x00FF ) );
   // Load payload
-  memcpy( &tx_packet_unstuffed[2], &payload[0], payload_len );
+  // memcpy( &tx_packet_unstuffed[2], &payload[0], payload_len );
+    for ( int i = 0; i < payload_len; i++ ) {
+        tx_packet_unstuffed[2 + i] = payload[i];
+    }
+
   // Compute checksum
   unsigned short checksum = CRC_INIT;  // Init value for CRC calculation
   while ( checksum == 0xFFFF ) {
     tx_packet_unstuffed[1] ^= 0x8000;
-    for ( i = 0; i < ( ( payload_len >> 1 ) + 2 ); i++ ) {
+    for ( int i = 0; i < ( payload_len + 2 ); i++ ) {
       checksum =
           culCalcCRC( ( tx_packet_unstuffed[i] >> 8 ) & 0xFF, checksum );
       checksum =
@@ -315,117 +302,178 @@ void CAN::sendPacket()
   }
 
   // Load checksum
-  tx_packet_unstuffed[i] = checksum;
+  tx_packet_unstuffed[payload_len + 2] = checksum;
   // Load EOF
-  tx_packet_unstuffed[i + 1] = 0xFFFF;
+  tx_packet_unstuffed[payload_len + 2 + 1] = 0xFFFF;
 
   // Bit stuff the packet
   bitStuff( tx_packet_unstuffed, tx_packet_stuffed );
 
   // BEGIN TRANSMISSION
   dma_start_channel_mask( ( 1u << dma_chan_0 ) );
+
+  // for (int k = 0; k < payload_len; k++) {
+  //     printf("Sent word[%d] = 0x%04x\n", k, payload[k]);
+  // }
+}
+
+// Packet reception
+unsigned char CAN::getBitChar( unsigned char* byte, unsigned char bitnum )
+{
+  switch ( bitnum ) {
+    case 0:
+      return ( ( *byte & 0x80 ) >> 7 );
+    case 1:
+      return ( ( *byte & 0x40 ) >> 6 );
+    case 2:
+      return ( ( *byte & 0x20 ) >> 5 );
+    case 3:
+      return ( ( *byte & 0x10 ) >> 4 );
+    case 4:
+      return ( ( *byte & 0x08 ) >> 3 );
+    case 5:
+      return ( ( *byte & 0x04 ) >> 2 );
+    case 6:
+      return ( ( *byte & 0x02 ) >> 1 );
+    case 7:
+      return ( ( *byte & 0x01 ) >> 0 );
+    default:
+      return 0xFF;
+  }
+}
+
+void CAN::modifyBitChar( unsigned char* byte, unsigned char bitnum,
+                         unsigned char value )
+{
+  switch ( bitnum ) {
+    case 7:
+      *byte |= ( ( value << 0 ) & 0x01 );
+      break;
+    case 6:
+      *byte |= ( ( value << 1 ) & 0x02 );
+      break;
+    case 5:
+      *byte |= ( ( value << 2 ) & 0x04 );
+      break;
+    case 4:
+      *byte |= ( ( value << 3 ) & 0x08 );
+      break;
+    case 3:
+      *byte |= ( ( value << 4 ) & 0x10 );
+      break;
+    case 2:
+      *byte |= ( ( value << 5 ) & 0x20 );
+      break;
+    case 1:
+      *byte |= ( ( value << 6 ) & 0x40 );
+      break;
+    case 0:
+      *byte |= ( ( value << 7 ) & 0x80 );
+      break;
+    default:
+      printf( "Invalid argument to modifyBitChar   \n" );
+      break;
+  }
 }
 
 // Unstuffs the first array and stores the result in the second.
-void CAN::unBitStuff( unsigned short* stuffed, unsigned short* unstuffed )
-{
-  // Clear the buffer
-  memcpy( &unstuffed[0], &zero_packet[0], MAX_STUFFED_PACKET_LEN * sizeof(short) );
+void CAN::unBitStuff(unsigned char * stuffed, unsigned short * unstuffed) {
+    // Clear the buffer
+    memcpy( &unstuffed[0], &zero_packet[0], MAX_STUFFED_PACKET_LEN );
 
-  // Variables for monitoring position in each buffer
-  int stuffed_index   = 0;
-  int unstuffed_index = 0;
-  int stuffed_bit     = 0;
-  int unstuffed_bit   = 0;
+    // Variables for monitoring position in each buffer
+    int stuffed_index   = 0;
+    int unstuffed_index = 0;
+    int stuffed_bit     = 0;
+    int unstuffed_bit   = 0;
 
-  // Accumulated bit run length
-  int bit_run_len = 0;
+    // Accumulated bit run length
+    int bit_run_len = 0;
 
-  // Memory of old bit value
-  unsigned char new_val = 0;
-  unsigned char old_val = 2;
+    // Memory of old bit value
+    unsigned char new_val = 0;
+    unsigned char old_val = 2;
 
-  // Until we find the end of frame . . .
-  while ( ( *( stuffed + stuffed_index ) != 0xFF ) &&
-          ( stuffed_index < ( MAX_STUFFED_PACKET_LEN ) ) ) {
-    // Get a new bit, update the bit run length, and update the bit memory
-    new_val     = getBitShort( ( stuffed + stuffed_index ), stuffed_bit );
-    bit_run_len = ( new_val == old_val ) ? ( bit_run_len + 1 ) : 1;
-    old_val     = new_val;
+    // Until we find the end of frame . . .
+    while ( ( *( stuffed + stuffed_index ) != 0xFF ) &&
+            ( stuffed_index < ( MAX_STUFFED_PACKET_LEN ) ) ) {
+        // Get a new bit, update the bit run length, and update the bit memory
+        new_val     = getBitChar( ( stuffed + stuffed_index ), stuffed_bit );
+        bit_run_len = ( new_val == old_val ) ? ( bit_run_len + 1 ) : 1;
+        old_val     = new_val;
 
-    // If our bit run length is less than 5, update the unstuffed buffer
-    // and increment position in each buffer.
-    if ( bit_run_len < 5 ) {
-      modifyBitShort( unstuffed + unstuffed_index, unstuffed_bit,
-                     new_val );
+        // If our bit run length is less than 5, update the unstuffed buffer
+        // and increment position in each buffer.
+        if ( bit_run_len < 5 ) {
+            modifyBitShort( unstuffed + unstuffed_index, unstuffed_bit, new_val );
+            unstuffed_bit   = ( unstuffed_bit < 15 ) ? ( unstuffed_bit + 1 ) : 0;
+            unstuffed_index = ( unstuffed_bit == 0 ) ? ( unstuffed_index + 1 ) : unstuffed_index;
 
-      unstuffed_bit   = ( unstuffed_bit < 15 ) ? ( unstuffed_bit + 1 ) : 0;
-      unstuffed_index = ( unstuffed_bit == 0 ) ? ( unstuffed_index + 1 ) :
-                                                 unstuffed_index;
+            stuffed_bit = ( stuffed_bit < 7 ) ? ( stuffed_bit + 1 ) : 0;
+            stuffed_index = ( stuffed_bit == 0 ) ? ( stuffed_index + 1 ) : stuffed_index;
+        } else {
+            modifyBitShort( unstuffed + unstuffed_index, unstuffed_bit, new_val );
+            unstuffed_bit   = ( unstuffed_bit < 15 ) ? ( unstuffed_bit + 1 ) : 0;
+            unstuffed_index = ( unstuffed_bit == 0 ) ? ( unstuffed_index + 1 ) : unstuffed_index;
 
-      stuffed_bit = ( stuffed_bit < 15 ) ? ( stuffed_bit + 1 ) : 0;
-      stuffed_index =
-          ( stuffed_bit == 0 ) ? ( stuffed_index + 1 ) : stuffed_index;
+            stuffed_bit = ( stuffed_bit < 7 ) ? ( stuffed_bit + 1 ) : 0;
+            stuffed_index = ( stuffed_bit == 0 ) ? ( stuffed_index + 1 ) : stuffed_index;
+
+            stuffed_bit = ( stuffed_bit < 7 ) ? ( stuffed_bit + 1 ) : 0;
+            stuffed_index = ( stuffed_bit == 0 ) ? ( stuffed_index + 1 ) : stuffed_index;
+    
+            // Reset bit run length
+            bit_run_len = 1;
+            // We jumped over a stuffed bit, opposite polarity to
+            // the last bit that we measured
+            old_val = !new_val;
+        }
     }
-    else {
-      modifyBitShort( unstuffed + unstuffed_index, unstuffed_bit,
-                     new_val );
-      unstuffed_bit   = ( unstuffed_bit < 15 ) ? ( unstuffed_bit + 1 ) : 0;
-      unstuffed_index = ( unstuffed_bit == 0 ) ? ( unstuffed_index + 1 ) :
-                                                 unstuffed_index;
-
-      stuffed_bit = ( stuffed_bit < 15 ) ? ( stuffed_bit + 1 ) : 0;
-      stuffed_index =
-          ( stuffed_bit == 0 ) ? ( stuffed_index + 1 ) : stuffed_index;
-
-      stuffed_bit = ( stuffed_bit < 15 ) ? ( stuffed_bit + 1 ) : 0;
-      stuffed_index =
-          ( stuffed_bit == 0 ) ? ( stuffed_index + 1 ) : stuffed_index;
-
-      // Reset bit run length
-      bit_run_len = 1;
-      // We jumped over a stuffed bit, opposite polarity to
-      // the last bit that we measured
-      old_val = !new_val;
-    }
-  }
 }
 
 // Check packet is valid (remain in rx_packet_unstuffed) or invalid.
-unsigned char CAN::attemptPacketReceive()
-{
-  int i;
+unsigned char CAN::attemptPacketReceive() {
+    // Unstuff the received packet
+    unBitStuff( rx_packet_stuffed, rx_packet_unstuffed );
 
-  // Unstuff the received packet
-  unBitStuff( rx_packet_stuffed, rx_packet_unstuffed );
+    // Check arbitration bits
+    if ((rx_packet_unstuffed[0] != my_arbitration) &&
+        (rx_packet_unstuffed[0] != network_broadcast)) {
+        printf("Arbitration check failed!\n");
+        return 0;
+    }
 
-  // Check arbitration bits
-  if ( ( rx_packet_unstuffed[0] != my_arbitration ) &&
-       ( rx_packet_unstuffed[0] != network_broadcast ) ) {
-    return 0;
-  }
+    // Check packet length
+    unsigned char reserve_byte = (rx_packet_unstuffed[1] >> 8) & 0xFF;
+    unsigned char len = rx_packet_unstuffed[1] & 0x00FF;
 
-  unsigned char rx_len = (uint8_t) ( rx_packet_unstuffed[1] & 0x00FF );
+    if (len > MAX_PAYLOAD_SIZE) {
+        printf("Invalid payload length!\n");
+        return 0;
+    }
 
-  // Check packet length
-  if ( rx_len > MAX_PAYLOAD_SIZE ) {
-    return 0;
-  }
+    for (int k = 0; k < (len >> 1) + 4; k++) {
+        printf("rx_packet_unstuffed[%d] = 0x%04x\n", k, rx_packet_unstuffed[k]);
+    }
 
-  // Compute and check checksum
-  unsigned short checksum = CRC_INIT;  // Init value for CRC calculation
-  for ( i = 0; i < ( rx_len + 2 ); i++ ) {
-      checksum =
-          culCalcCRC( ( rx_packet_unstuffed[i] >> 8 ) & 0xFF, checksum );
-      checksum =
-          culCalcCRC( ( rx_packet_unstuffed[i] ) & 0xFF, checksum );
-  }
-  if ( rx_packet_unstuffed[i] == checksum ) {
-    return 1;
-  }
-  else {
-    return 0;
-  }
+    // Compute and check checksum
+    unsigned short checksum = CRC_INIT;  // Init value for CRC calculation
+    for (int i = 0; i < ((len >> 1) + 2); i++) {
+        checksum = culCalcCRC((rx_packet_unstuffed[i] >> 8) & 0xFF, checksum);
+        checksum = culCalcCRC(rx_packet_unstuffed[i] & 0xFF, checksum);
+    }
+    printf("Computed CRC = 0x%04x, Received CRC = 0x%04x\n", checksum, rx_packet_unstuffed[(len >> 1) + 2]);
+
+    if (rx_packet_unstuffed[(len >> 1) + 2] == checksum) {
+        for (int i = 0; i < (len >> 1); i++) {
+            printf("Received word[%d] = 0x%04x\n", i, rx_packet_unstuffed[2 + i]);
+        }
+        payload_len = (len >> 1);
+        return 1;
+    } else {
+        printf("CRC check failed!\n");
+        return 0;
+    }
 }
 
 // Deive ISR
@@ -448,7 +496,7 @@ void CAN::setupIdleCheck()
 
   // Initialize the PIO program
   idle_check_program_init( pio_0, can_idle_check_sm, can_idle_offset,
-                           can_tx + 1, CLKDIV );
+                           CAN_TX + 1, CLKDIV );
 
   // Zero the irq 1
   pio_interrupt_clear( pio_0, 1 );
@@ -494,9 +542,9 @@ void CAN::setupIdleCheck()
 void CAN::setupCANTX( irq_handler_t handler )
 {
   // Power off transciever (avoids transients on bus)
-  gpio_init( transceiver_en );
-  gpio_set_dir( transceiver_en, GPIO_OUT );
-  gpio_put( transceiver_en, 0 );
+  gpio_init( TRANSCIEVER_EN );
+  gpio_set_dir( TRANSCIEVER_EN, GPIO_OUT );
+  gpio_put( TRANSCIEVER_EN, 0 );
 
   // Setup the idle checking system
   setupIdleCheck();
@@ -505,7 +553,7 @@ void CAN::setupCANTX( irq_handler_t handler )
   uint can_tx_offset = pio_add_program( pio_0, &can_tx_program );
 
   // Initialize the PIO program
-  can_tx_program_init( pio_0, can_tx_sm, can_tx_offset, can_tx, CLKDIV );
+  can_tx_program_init( pio_0, can_tx_sm, can_tx_offset, CAN_TX, CLKDIV );
 
   // Setup interrupts for TX machine
   pio_interrupt_clear( pio_0, 0 );
@@ -538,7 +586,7 @@ void CAN::setupCANTX( irq_handler_t handler )
   sleep_ms( 1 );
 
   // Power on transciever
-  gpio_put( transceiver_en, 1 );
+  gpio_put( TRANSCIEVER_EN, 1 );
 }
 
 // Set up CAN RX machine
@@ -548,7 +596,7 @@ void CAN::setupCANRX( irq_handler_t handler )
   uint can_rx_offset = pio_add_program( pio_1, &can_rx_program );
 
   // Initialize the PIO programs
-  can_rx_program_init( pio_1, can_rx_sm, can_rx_offset, can_tx + 1,
+  can_rx_program_init( pio_1, can_rx_sm, can_rx_offset, CAN_TX + 1,
                        CLKDIV );
 
   // Setup interrupts for RX machine
