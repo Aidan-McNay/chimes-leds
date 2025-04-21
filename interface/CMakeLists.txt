@@ -8,4 +8,6 @@ set(SRC_FILES
   switch.cpp
   led.cpp
   pwm.cpp
+  color_led.cpp
+  heartbeat.cpp
 PARENT_SCOPE)

@@ -190,6 +190,10 @@ int main() {
   core_state.add_led_mode_callback( on_mode_change );
   core_state.add_led_color_callback( on_color_update );
 
+  red_out.toggle(true);
+  green_out.toggle(true);
+  blue_out.toggle(true);
+
   
   pt_add_thread( protothread_core );
 

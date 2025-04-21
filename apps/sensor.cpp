@@ -7,8 +7,6 @@
 #include "pico/multicore.h"
 // Interface library to sys_clock (SDK 2.0.0 )
 #include "hardware/clocks.h"
-// Interface library to watchdog
-#include "hardware/watchdog.h"
 // CAN driver
 #include "can/can.h"
 // Protothreads
@@ -94,12 +92,6 @@ void rx_handler() {
 int main() {
     // Initialize stdio
     stdio_init_all();
-
-    if (watchdog_caused_reboot()) {
-        printf("Rebooted by Watchdog!\n");
-    } else {
-        printf("Clean boot\n");
-    }
 
     // Set can bus callback
     can_bus.set_callback( read_packet );

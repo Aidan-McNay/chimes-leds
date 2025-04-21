@@ -27,10 +27,10 @@ PWM::PWM( int gpio_num, float clkdiv, int wrap, int duty_count )
   pwm_set_output_polarity( slice_num, true, false );
 }
 
-void PWM::start()
+void PWM::toggle(bool on)
 {
   // Start the PWM
-  pwm_set_enabled( slice_num, true );
+  pwm_set_enabled( slice_num, on );
 }
 
 // ----------------------------------------------------------------------

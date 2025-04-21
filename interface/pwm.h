@@ -5,6 +5,7 @@
 
 #ifndef PWM_H
 #define PWM_H
+#include "pico/stdlib.h"
 
 class PWM {
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -17,7 +18,7 @@ class PWM {
   //  - duty_count: Number of cycles to be high for
   PWM( int gpio_num, float clkdiv = 25.0, int wrap = 5000,
        int duty_count = 0 );
-  void start();
+  void toggle(bool on);
 
   // Change the duty cycle (0 - wrap)
   void set_duty( int duty_count );
