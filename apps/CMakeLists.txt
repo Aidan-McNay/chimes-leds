@@ -11,5 +11,5 @@ set(APP_FILES
   faces/face2.cpp
   faces/face3.cpp
   faces/face4.cpp
-  test.cpp
+  calibrate.cpp
 PARENT_SCOPE)

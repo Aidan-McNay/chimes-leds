@@ -24,7 +24,7 @@ PWM::PWM( int gpio_num, float clkdiv, int wrap, int duty_count )
   pwm_set_chan_level( slice_num, PWM_CHAN_A, duty_count );
 
   // Invert the output (only channel A for now)
-  pwm_set_output_polarity( slice_num, true, false );
+  pwm_set_output_polarity( slice_num, false, false );
 }
 
 void PWM::toggle(bool on)

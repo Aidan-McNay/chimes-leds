@@ -10,6 +10,8 @@ class ColorLED {
 
   void set_color(color_rgb c);
 
+  void set_rgbw(int r, int g, int b, int w);
+
   void toggle(bool on);
 
  protected:
