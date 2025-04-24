@@ -688,3 +688,4 @@ inline void CAN::acceptNewPacket()
 {
   pio_interrupt_clear( pio_1, 0 );
 }
+
