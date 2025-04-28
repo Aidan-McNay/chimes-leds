@@ -75,6 +75,7 @@ set(PICO_LIBS
   hardware_dma
   hardware_i2c
   pico_stdlib
+  pico_multicore 
   # pico_cyw43_arch_none
 )
 

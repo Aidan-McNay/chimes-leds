@@ -174,10 +174,24 @@ void rx_handler() {
   can_bus.handle_rx() ;
 }
 
+//                             MAIN FOR CORES 0 AND 1
+//
+// Main for core 1
+void core1_main() {
+    // CAN transmitter will run on core 1
+    can_bus.setupCANTX(tx_handler) ;
+    // Start the threader
+    pt_schedule_start ;
+}
+
 // Main for core 0
 int main() {
   // Initialize stdio
   stdio_init_all();
+  
+  // start core 1 threads
+  multicore_reset_core1();
+  multicore_launch_core1(&core1_main);
 
   // Set can bus callback
   can_bus.set_callback( read_packet );

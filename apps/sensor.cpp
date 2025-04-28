@@ -32,72 +32,88 @@ LightSensor light_sensor( LIGHT_SDA, LIGHT_SCL ) ;
 
 // Send a packet with a fix15 data (sound or light value)
 void send_packet (can_msg_t typ, fix15 value) {
-    // Create a packet to send sound data
-    unsigned short packet[3];
+  // Create a packet to send sound data
+  unsigned short packet[3];
 
-    packet[0] = typ; // Indicate sound data
+  packet[0] = typ; // Indicate sound data
 
-    // Read the sound sensor
-    packet[1] = value >> 16; // High short
-    packet[2] = value & 0xFFFF; // Low short
+  // Read the sound sensor
+  packet[1] = value >> 16; // High short
+  packet[2] = value & 0xFFFF; // Low short
 
-    can_bus.set_payload(packet, 3) ;
-    can_bus.set_arbitration(CORE_ARBITRATION) ;
+  can_bus.set_payload(packet, 3) ;
+  can_bus.set_arbitration(CORE_ARBITRATION) ;
 
-    // Send the packet
-    can_bus.sendPacket() ;
+  // Send the packet
+  can_bus.sendPacket() ;
 }
 
 
 void read_packet( const unsigned short* packet, const unsigned char len ) {
-    // The length should be 1 here - the only commands we should recieve
-    // are to request sensor data of certain types
+  // The length should be 1 here - the only commands we should recieve
+  // are to request sensor data of certain types
 
-    if ( len == 1 ) {
-        fix15 value;
-        can_msg_t typ = (can_msg_t) packet[0];
-        switch ( typ ) {
-            case SENSOR_LIGHT:
-                // Send the light sensor
-                value = light_sensor.sample() ;
-                send_packet(typ, value) ;
-                break;
-            case SENSOR_SOUND:
-                // Send the sound sensor
-                value = mic.sample() ;
-                send_packet(typ, value) ;
-                break;
-            default:
-                printf("Invalid packet type\n") ;
-                break;
-        }
+  if ( len == 1 ) {
+    fix15 value;
+    can_msg_t typ = (can_msg_t) packet[0];
+    switch ( typ ) {
+      case SENSOR_LIGHT:
+        // Send the light sensor
+        value = light_sensor.sample() ;
+        send_packet(typ, value) ;
+        break;
+      case SENSOR_SOUND:
+        // Send the sound sensor
+        value = mic.sample() ;
+        send_packet(typ, value) ;
+        break;
+      default:
+        printf("Invalid packet type\n") ;
+        break;
     }
-    else {
-        printf("Invalid packet length\n") ;
-    }
+  }
+  else {
+    printf("Invalid packet length\n") ;
+  }
 }
 
 //                        USER INTERRUPT SERVICE ROUTINES
 //
 // ISR entered at the end of packet transmit.
 void tx_handler() {
-    can_bus.handle_tx() ;
+  can_bus.handle_tx() ;
 }
 // ISR entered when a packet is available for attempted receipt.
 void rx_handler() {
-    can_bus.handle_rx() ;
+  can_bus.handle_rx() ;
+}
+
+//                             MAIN FOR CORES 0 AND 1
+//
+// Main for core 1
+void core1_main() {
+  // CAN transmitter will run on core 1
+  can_bus.setupCANTX(tx_handler) ;
+  // Start the threader
+  pt_schedule_start ;
 }
 
 // Main for core 0
 int main() {
-    // Initialize stdio
-    stdio_init_all();
+  // Initialize stdio
+  stdio_init_all();
+  
+  // start core 1 threads
+  multicore_reset_core1();
+  multicore_launch_core1(&core1_main);
 
-    // Set can bus callback
-    can_bus.set_callback( read_packet );
+  // Set can bus callback
+  can_bus.set_callback( read_packet );
 
-    // Setup the CAN receiver on core 0
-    can_bus.setupCANRX(rx_handler) ;
+  // Setup the CAN receiver on core 0
+  can_bus.setupCANRX(rx_handler) ;
 
-    pt_schedule_start ;
+  pt_schedule_start ;
 }
+
+
