@@ -104,10 +104,6 @@
     {
       this->number_missed = number_missed;
     }
-    void set_unsafe_to_tx( volatile int unsafe_to_tx )
-    {
-      this->unsafe_to_tx = unsafe_to_tx;
-    }
     int get_number_sent()
     {
       return number_sent;
@@ -119,10 +115,6 @@
     int get_number_missed()
     {
       return number_missed;
-    }
-    int get_unsafe_to_tx()
-    {
-      return unsafe_to_tx;
     }
 
     // Computes the checksum

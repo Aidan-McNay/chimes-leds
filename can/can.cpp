@@ -31,14 +31,14 @@ unsigned short zero_packet[MAX_STUFFED_PACKET_LEN] = { 0 };
 PIO pio_0 = pio0;
 PIO pio_1 = pio1;
 // State machines
-int can_tx_sm         = -1;
-int can_idle_check_sm = -1;
-int can_rx_sm         = -1;
+volatile int can_tx_sm         = -1;
+volatile int can_idle_check_sm = -1;
+volatile int can_rx_sm         = -1;
 // Select dma channels
-int dma_chan_0 = -1;
-int dma_chan_1 = -1;
-int dma_chan_2 = -1;
-int dma_chan_3 = -1;
+volatile int dma_chan_0 = -1;
+volatile int dma_chan_1 = -1;
+volatile int dma_chan_2 = -1;
+volatile int dma_chan_3 = -1;
 // Dummy DMA source/destination for chained channel
 unsigned int dummy_source = 0;
 unsigned int dummy_dest   = 0;
@@ -74,6 +74,7 @@ CAN::CAN( unsigned short my_arbitration, unsigned short network_broadcast,
 // ISR entered at the end of packet transmit
 void CAN::handle_tx()
 {
+  printf("TX ISR\n");
   // Abort/reset DMA channel, clear FIFO, clear PIO irq
   resetTransmitter();
   number_sent += 1;
@@ -96,7 +97,7 @@ void CAN::handle_rx()
 
   // Call the packet handler
   if ( packet_handler ) {
-    packet_handler( &rx_packet_unstuffed[4], rx_packet_unstuffed[3] );
+    packet_handler( &rx_packet_unstuffed[2], rx_packet_unstuffed[1] & 0xFF );
   }
 
   // Clear the interrupt to receive the next message
@@ -286,6 +287,7 @@ void CAN::bitStuff( unsigned short* unstuffed, unsigned short* stuffed )
 // Computes and appends the checksum, then appends the EOF.
 void CAN::sendPacket()
 {
+  printf("Sending packet\n");
   while ( unsafe_to_tx ) {
     // Wait for the previous packet to be sent
   }
@@ -300,12 +302,12 @@ void CAN::sendPacket()
       ( ( ( ( (unsigned short) reserve_byte ) << 8 ) & 0xFF00 ) |
         ( ( (unsigned short) payload_len ) & 0x00FF ) );
   // Load payload
-  memcpy( &tx_packet_unstuffed[2], &payload[0], payload_len );
+  memcpy( &tx_packet_unstuffed[2], &payload[0], payload_len * sizeof(short) );
   // Compute checksum
   unsigned short checksum = CRC_INIT;  // Init value for CRC calculation
   while ( checksum == 0xFFFF ) {
     tx_packet_unstuffed[1] ^= 0x8000;
-    for ( i = 0; i < ( ( payload_len >> 1 ) + 2 ); i++ ) {
+    for ( i = 0; i < ( payload_len + 2 ); i++ ) {
       checksum =
           culCalcCRC( ( tx_packet_unstuffed[i] >> 8 ) & 0xFF, checksum );
       checksum =
@@ -318,11 +320,23 @@ void CAN::sendPacket()
   // Load EOF
   tx_packet_unstuffed[i + 1] = 0xFFFF;
 
+  printf("Unstuffed packet {");
+  for ( int i = 0; i < ( tx_packet_unstuffed[0] + 2 ); i++ ) {
+    printf( "%04X ", tx_packet_unstuffed[i] );
+  }
+  printf("}\n");
+
   // Bit stuff the packet
   bitStuff( tx_packet_unstuffed, tx_packet_stuffed );
 
   // BEGIN TRANSMISSION
   dma_start_channel_mask( ( 1u << dma_chan_0 ) );
+
+  printf("Sending packet {");
+  for ( int i = 0; i < ( tx_packet_stuffed[0] + 2 ); i++ ) {
+    printf( "%04X ", tx_packet_stuffed[i] );
+  }
+  printf("}\n");
 }
 
 // Unstuffs the first array and stores the result in the second.
@@ -571,7 +585,7 @@ void CAN::setupCANRX( irq_handler_t handler )
 
   // Channel One (gets data from RX PIO machine)
   dma_channel_config c1 = dma_channel_get_default_config( dma_chan_1 );
-  channel_config_set_transfer_data_size( &c1, DMA_SIZE_8 );
+  channel_config_set_transfer_data_size( &c1, DMA_SIZE_16 );
   channel_config_set_read_increment( &c1, false );
   channel_config_set_write_increment( &c1, true );
   channel_config_set_dreq( &c1, DREQ_PIO1_RX0 );

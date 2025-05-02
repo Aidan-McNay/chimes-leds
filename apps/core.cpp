@@ -23,7 +23,7 @@
 
 State core_state = State();
 
-CAN can_bus( CORE_ARBITRATION, NETWORK_BROADCAST, 18, 22);
+CAN can_bus( CORE_ARBITRATION, NETWORK_BROADCAST, 16, 22);
 
 Switch system_enable(4); // whether to be on
 Switch wifi_enable(5);   // whether to use WiFi configs
@@ -133,7 +133,8 @@ static PT_THREAD( protothread_core( struct pt *pt ) )
     wifi_on.toggle(wifi_enable.enabled());
 
     if (system_enable.enabled()) {
-
+      
+      printf("RUNNIG\n");
       switch (core_state.get_led_mode()) {
         case LIGHT:
           // Send light sensor data to watch faces
@@ -156,9 +157,11 @@ static PT_THREAD( protothread_core( struct pt *pt ) )
           break;
       }
     } else {
-    // If the system is not enabled, turn off the LEDs
-    core_state.set_led_on(false);
-  }
+      // If the system is not enabled, turn off the LEDs
+      core_state.set_led_on(false);
+      printf("System disabled\n");
+    }
+  
 
     elapsed_time = time_us_32() - begin_time;
 
@@ -185,6 +188,8 @@ void rx_handler() {
 void core1_main() {
     // CAN transmitter will run on core 1
     can_bus.setupCANTX(tx_handler) ;
+
+    printf("TX handler set up\n");
     // Start the threader
     pt_schedule_start ;
 }
@@ -193,6 +198,9 @@ void core1_main() {
 int main() {
   // Initialize stdio
   stdio_init_all();
+  sleep_ms(2000);
+
+  printf("Launching...\n");
   
   int rc = pico_led_init();
   hard_assert(rc == PICO_OK);
@@ -215,6 +223,8 @@ int main() {
 
   // Setup the CAN receiver on core 0
   can_bus.setupCANRX(rx_handler) ;
+
+  printf("RX handler set up\n");
 
   pt_add_thread( protothread_core );
   
