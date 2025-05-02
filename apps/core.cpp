@@ -23,7 +23,7 @@
 
 State core_state = State();
 
-CAN can_bus( CORE_ARBITRATION, NETWORK_BROADCAST, 16, 22);
+CAN can_bus( CORE_ARBITRATION, NETWORK_BROADCAST, 18, 22);
 
 Switch system_enable(4); // whether to be on
 Switch wifi_enable(5);   // whether to use WiFi configs
