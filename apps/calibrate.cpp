@@ -12,6 +12,7 @@
 #include "utils/pt_cornell_rp2040_v1.h"
 #include "interface/color_led.h"
 #include "interface/led.h"
+#include "interface/pico_led.h"
 
 #include <stdio.h>
 
@@ -69,9 +70,9 @@ int main() {
   // Initialize stdio
   stdio_init_all();
 
-  gpio_init( PICO_DEFAULT_LED_PIN );
-  gpio_set_dir( PICO_DEFAULT_LED_PIN, GPIO_OUT );
-  gpio_put( PICO_DEFAULT_LED_PIN, 1 );
+  int rc = pico_led_init();
+  hard_assert( rc == PICO_OK );
+  pico_set_led( true );
 
   gpio_set_function( 0, UART_FUNCSEL_NUM( uart0, 0 ) );
   gpio_set_function( 1, UART_FUNCSEL_NUM( uart0, 1 ) );
@@ -79,8 +80,6 @@ int main() {
   uart_init( uart0, 115200 );
 
   uart_puts( uart0, "Initialized calibration.\n" );
-
-  led.toggle(true);
 
   pt_add_thread(protothread_input);
   pt_add_thread(protothread_blink);

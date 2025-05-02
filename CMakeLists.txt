@@ -46,7 +46,7 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 
-set(PICO_BOARD pico CACHE STRING "Board type")
+set(PICO_BOARD pico_w CACHE STRING "Board type")
 
 # ------------------------------------------------------------------------
 # Include the Pico SDK
@@ -65,6 +65,7 @@ project(
   LANGUAGES C CXX
 )
 pico_sdk_init()
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_compile_options(-O3 -Wall -Wextra -Wno-unused-parameter)
 
@@ -76,8 +77,12 @@ set(PICO_LIBS
   hardware_i2c
   pico_stdlib
   pico_multicore 
-  # pico_cyw43_arch_none
 )
+
+# Add pico_cyw43_arch_none to PICO_LIBS if PICO_BOARD is pico_w
+if(PICO_BOARD STREQUAL "pico_w")
+  list(APPEND PICO_LIBS pico_cyw43_arch_none)
+endif()
 
 #-------------------------------------------------------------------------
 # get_leaf
@@ -155,6 +160,8 @@ foreach(APP_FILE_PATH ${APP_FILES})
   remove_extension(APP_BIN ${APP_FILE})
   add_executable(${APP_BIN} ${APP_FILE_PATH} ${GLOBAL_SRC_FILES})
   target_link_libraries(${APP_BIN} ${PICO_LIBS})
+  
+  pico_enable_stdio_usb(${APP_BIN} 1)
 
   # create map/bin/hex file etc.
   pico_add_extra_outputs(${APP_BIN})

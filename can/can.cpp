@@ -26,20 +26,19 @@ unsigned char zero_packet[MAX_STUFFED_PACKET_LEN] = { 0 };
 // ----------------------------------------------------------------------
 // Define infrastructure globals
 // ----------------------------------------------------------------------
-
+\
 // PIO blocks
 PIO pio_0 = pio0;
 PIO pio_1 = pio1;
 // State machines
-int can_tx_sm         = 0;
-int can_idle_check_sm = 1;
-int can_rx_sm         = 0;
+int can_tx_sm         = -1;
+int can_idle_check_sm = -1;
+int can_rx_sm         = -1;
 // Select dma channels
-int dma_chan_0 = 0;
-int dma_chan_1 = 1;
-int dma_chan_2 = 2;
-int dma_chan_3 = 3;
-int dma_chan_4 = 4;
+int dma_chan_0 = -1;
+int dma_chan_1 = -1;
+int dma_chan_2 = -1;
+int dma_chan_3 = -1;
 // Dummy DMA source/destination for chained channel
 unsigned int dummy_source = 0;
 unsigned int dummy_dest   = 0;
@@ -317,16 +316,18 @@ void CAN::sendPacket()
 
   // Bit stuff the packet
   bitStuff( tx_packet_unstuffed, tx_packet_stuffed );
-  for (int k = 0; k < 10; k++) {
-    printf("tx_packet_unstuffed[%d] = 0x%04x\n", k, tx_packet_unstuffed[k]);
-  }
+  // for (int k = 0; k < 10; k++) {
+  //   printf("tx_packet_unstuffed[%d] = 0x%04x\n", k, tx_packet_unstuffed[k]);
+  // }
 
   // BEGIN TRANSMISSION
   dma_start_channel_mask( ( 1u << dma_chan_0 ) );
 
-  // for (int k = 0; k < payload_len; k++) {
-  //     printf("Sent word[%d] = 0x%04x\n", k, payload[k]);
-  // }
+  printf("Sending message {");
+  for (int k = 0; k < payload_len; k++) {
+    printf("0x%04x, ", payload[k]);
+  }
+  printf("}\n");
 }
 
 // Packet reception
@@ -456,7 +457,6 @@ unsigned char CAN::attemptPacketReceive() {
     }
 
     // Check packet length
-    unsigned char reserve_byte = (rx_packet_unstuffed[1] >> 8) & 0xFF;
     unsigned char len = rx_packet_unstuffed[1] & 0x00FF;
 
     if (len > MAX_PAYLOAD_SIZE) {
@@ -477,9 +477,11 @@ unsigned char CAN::attemptPacketReceive() {
     printf("Computed CRC = 0x%04x, Received CRC = 0x%04x\n", checksum, rx_packet_unstuffed[(len >> 1) + 2]);
 
     if (rx_packet_unstuffed[(len >> 1) + 2] == checksum) {
-        for (int i = 0; i < (len >> 1); i++) {
-            printf("Received word[%d] = 0x%04x\n", i, rx_packet_unstuffed[2 + i]);
+        printf("Received message {");
+        for (int k = 0; k < len; k++) {
+            printf("0x%04x, ", rx_packet_unstuffed[2 + k]);
         }
+        printf("}\n");
         payload_len = (len >> 1);
         return 1;
     } else {
@@ -506,6 +508,8 @@ void CAN::setupIdleCheck()
   // Load PIO program onto PIO0
   uint can_idle_offset = pio_add_program( pio_0, &idle_check_program );
 
+  can_idle_check_sm = pio_claim_unused_sm( pio_0, true );
+
   // Initialize the PIO program
   idle_check_program_init( pio_0, can_idle_check_sm, can_idle_offset,
                            can_tx + 1, CLKDIV );
@@ -515,6 +519,9 @@ void CAN::setupIdleCheck()
 
   // Start the PIO program
   pio_sm_set_enabled( pio_0, can_idle_check_sm, true );
+  
+  dma_chan_2 = dma_claim_unused_channel( true );
+  dma_chan_3 = dma_claim_unused_channel( true );
 
   // Channel Two (sends data to TX PIO machine)
   dma_channel_config c2 = dma_channel_get_default_config( dma_chan_2 );
@@ -564,6 +571,8 @@ void CAN::setupCANTX( irq_handler_t handler )
   // Load PIO programs onto PIO0
   uint can_tx_offset = pio_add_program( pio_0, &can_tx_program );
 
+  can_tx_sm = pio_claim_unused_sm( pio_0, true );
+
   // Initialize the PIO program
   can_tx_program_init( pio_0, can_tx_sm, can_tx_offset, can_tx, CLKDIV );
 
@@ -572,6 +581,8 @@ void CAN::setupCANTX( irq_handler_t handler )
   pio_set_irq0_source_enabled( pio_0, pis_interrupt0, true );
   irq_set_exclusive_handler( PIO0_IRQ_0, handler );
   irq_set_enabled( PIO0_IRQ_0, true );
+
+  dma_chan_0 = dma_claim_unused_channel( true );
 
   // Channel Zero (sends data to TX PIO machine)
   dma_channel_config c0 = dma_channel_get_default_config( dma_chan_0 );
@@ -607,6 +618,8 @@ void CAN::setupCANRX( irq_handler_t handler )
   // Load pio program onto PIO 1
   uint can_rx_offset = pio_add_program( pio_1, &can_rx_program );
 
+  can_rx_sm = pio_claim_unused_sm( pio_1, true );
+
   // Initialize the PIO programs
   can_rx_program_init( pio_1, can_rx_sm, can_rx_offset, can_tx + 1,
                        CLKDIV );
@@ -616,10 +629,12 @@ void CAN::setupCANRX( irq_handler_t handler )
   pio_set_irq0_source_enabled( pio_1, pis_interrupt0, true );
   irq_set_exclusive_handler( PIO1_IRQ_0, handler );
   irq_set_enabled( PIO1_IRQ_0, true );
+  
+  dma_chan_1 = dma_claim_unused_channel( true );
 
   // Channel One (gets data from RX PIO machine)
   dma_channel_config c1 = dma_channel_get_default_config( dma_chan_1 );
-  channel_config_set_transfer_data_size( &c1, DMA_SIZE_8 );
+  channel_config_set_transfer_data_size( &c1, DMA_SIZE_16 );
   channel_config_set_read_increment( &c1, false );
   channel_config_set_write_increment( &c1, true );
   channel_config_set_dreq( &c1, DREQ_PIO1_RX0 );

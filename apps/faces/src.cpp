@@ -19,6 +19,7 @@
 #include "interface/color_led.h"
 #include "utils/color.h"
 #include "interface/heartbeat.h"
+#include "interface/pico_led.h"
 
 #define RED_PIN 28
 #define GREEN_PIN 26
@@ -43,6 +44,7 @@ void read_packet( const unsigned short* packet, const unsigned char len ) {
     color_rgb c;
     bool on;
     can_msg_t typ = (can_msg_t) packet[0];
+    printf("Received packet type %d\n", typ);
     switch ( typ ) {
         case SET_COLOR:
             c.red = packet[1];
@@ -112,6 +114,9 @@ int main() {
     // Initialize stdio
     stdio_init_all();
     
+  int rc = pico_led_init();
+  hard_assert(rc == PICO_OK);
+    
     // start core 1 threads
     multicore_reset_core1();
     multicore_launch_core1(&core1_main);
@@ -124,6 +129,8 @@ int main() {
 
     // Initialize the heartbeat
     pt_add_thread( protothread_heartbeat );
+
+    pico_set_led(true);
 
     pt_schedule_start ;
 }
