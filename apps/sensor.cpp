@@ -100,6 +100,9 @@ void core1_main() {
 
 // Main for core 0
 int main() {
+  // Overclock to 160MHz (divides evenly to 1 megabaud) (160/5/32=1)
+  set_sys_clock_khz(OVERCLOCK_RATE, true) ;
+  
   // Initialize stdio
   stdio_init_all();
   

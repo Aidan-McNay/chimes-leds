@@ -31,14 +31,14 @@ unsigned short zero_packet[MAX_STUFFED_PACKET_LEN] = { 0 };
 PIO pio_0 = pio0;
 PIO pio_1 = pio1;
 // State machines
-volatile int can_tx_sm         = -1;
-volatile int can_idle_check_sm = -1;
-volatile int can_rx_sm         = -1;
+int can_tx_sm         = 0;
+int can_idle_check_sm = 1;
+int can_rx_sm         = 0;
 // Select dma channels
-volatile int dma_chan_0 = -1;
-volatile int dma_chan_1 = -1;
-volatile int dma_chan_2 = -1;
-volatile int dma_chan_3 = -1;
+int dma_chan_0 = 0;
+int dma_chan_1 = 1;
+int dma_chan_2 = 2;
+int dma_chan_3 = 3;
 // Dummy DMA source/destination for chained channel
 unsigned int dummy_source = 0;
 unsigned int dummy_dest   = 0;
@@ -238,33 +238,34 @@ void CAN::bitStuff( unsigned short* unstuffed, unsigned short* stuffed )
   unsigned short old_val = 2;
 
   // Until we find the end of frame
-  while ( ( *( unstuffed + unstuffed_index ) != 0xFFFF ) &&
-          ( unstuffed_index < MAX_PACKET_LEN ) ) {
+  // End at MAX_PACKET_LEN - 1 to allow for EOF short
+  while (  ( unstuffed_index < MAX_PACKET_LEN - 1 ) && ( unstuffed[unstuffed_index] != 0xFFFF ) ) {
     new_val =
-        getBitShort( ( unstuffed + unstuffed_index ), unstuffed_bit );
+        getBitShort( &unstuffed[unstuffed_index], unstuffed_bit );
     bit_run_len = ( new_val == old_val ) ? ( bit_run_len + 1 ) : 1;
     old_val     = new_val;
 
     if ( bit_run_len < 5 ) {
-      modifyBitShort( stuffed + stuffed_index, stuffed_bit, new_val );
-      stuffed_bit = ( stuffed_bit < 15 ) ? ( stuffed_bit + 1 ) : 0;
+      modifyBitShort( &stuffed[stuffed_index], stuffed_bit, new_val );
+      stuffed_bit = (stuffed_bit + 1) % 16;
       stuffed_index =
           ( stuffed_bit == 0 ) ? ( stuffed_index + 1 ) : stuffed_index;
-      unstuffed_bit = ( unstuffed_bit < 15 ) ? ( unstuffed_bit + 1 ) : 0;
+      unstuffed_bit = (unstuffed_bit + 1) % 16;
       unstuffed_index = ( unstuffed_bit == 0 ) ? ( unstuffed_index + 1 ) :
                                                  unstuffed_index;
     }
     else {
-      modifyBitShort( stuffed + stuffed_index, stuffed_bit, new_val );
-      stuffed_bit = ( stuffed_bit < 15 ) ? ( stuffed_bit + 1 ) : 0;
+      modifyBitShort( &stuffed[stuffed_index], stuffed_bit, new_val );
+      stuffed_bit = (stuffed_bit + 1) % 16;
       stuffed_index =
           ( stuffed_bit == 0 ) ? ( stuffed_index + 1 ) : stuffed_index;
 
-      modifyBitShort( stuffed + stuffed_index, stuffed_bit, !new_val );
-      stuffed_bit = ( stuffed_bit < 15 ) ? ( stuffed_bit + 1 ) : 0;
+      modifyBitShort( &stuffed[stuffed_index], stuffed_bit, !new_val );
+      stuffed_bit = (stuffed_bit + 1) % 16;
       stuffed_index =
           ( stuffed_bit == 0 ) ? ( stuffed_index + 1 ) : stuffed_index;
-      unstuffed_bit = ( unstuffed_bit < 15 ) ? ( unstuffed_bit + 1 ) : 0;
+
+      unstuffed_bit = (unstuffed_bit + 1) % 16;
       unstuffed_index = ( unstuffed_bit == 0 ) ? ( unstuffed_index + 1 ) :
                                                  unstuffed_index;
 
@@ -281,18 +282,14 @@ void CAN::bitStuff( unsigned short* unstuffed, unsigned short* stuffed )
 
   // Postpend a short of all ones
   stuffed_index += 1;
-  *( stuffed + stuffed_index ) = *( unstuffed + unstuffed_index );
+  *( stuffed + stuffed_index ) = 0xFFFF;
 }
 
 // Computes and appends the checksum, then appends the EOF.
 void CAN::sendPacket()
 {
+  unsafe_to_tx = 1;
   printf("Sending packet\n");
-  while ( unsafe_to_tx ) {
-    // Wait for the previous packet to be sent
-  }
-
-  unsafe_to_tx = 1;  // Set flag to indicate unsafe to transmit
 
   int i;
   // Load arbitration
@@ -321,7 +318,7 @@ void CAN::sendPacket()
   tx_packet_unstuffed[i + 1] = 0xFFFF;
 
   printf("Unstuffed packet {");
-  for ( int i = 0; i < ( tx_packet_unstuffed[0] + 2 ); i++ ) {
+  for ( int i = 0; i < ( MAX_PACKET_LEN ); i++ ) {
     printf( "%04X ", tx_packet_unstuffed[i] );
   }
   printf("}\n");
@@ -333,17 +330,21 @@ void CAN::sendPacket()
   dma_start_channel_mask( ( 1u << dma_chan_0 ) );
 
   printf("Sending packet {");
-  for ( int i = 0; i < ( tx_packet_stuffed[0] + 2 ); i++ ) {
+  for ( int i = 0; i < MAX_STUFFED_PACKET_LEN ; i++ ) {
     printf( "%04X ", tx_packet_stuffed[i] );
   }
   printf("}\n");
+  while ( unsafe_to_tx ) {
+    // Wait for the transmission to finish
+  }
+  printf("Done sending packet\n");
 }
 
 // Unstuffs the first array and stores the result in the second.
 void CAN::unBitStuff( unsigned short* stuffed, unsigned short* unstuffed )
 {
   // Clear the buffer
-  memcpy( &unstuffed[0], &zero_packet[0], MAX_STUFFED_PACKET_LEN * sizeof(short) );
+  memcpy( &unstuffed[0], &zero_packet[0], MAX_PACKET_LEN * sizeof(short) );
 
   // Variables for monitoring position in each buffer
   int stuffed_index   = 0;
@@ -359,39 +360,39 @@ void CAN::unBitStuff( unsigned short* stuffed, unsigned short* unstuffed )
   unsigned char old_val = 2;
 
   // Until we find the end of frame . . .
-  while ( ( *( stuffed + stuffed_index ) != 0xFF ) &&
-          ( stuffed_index < ( MAX_STUFFED_PACKET_LEN ) ) ) {
+  while ( ( stuffed_index < MAX_STUFFED_PACKET_LEN - 1 ) &&
+           ( stuffed[stuffed_index] != 0xFFFF ) ) {
     // Get a new bit, update the bit run length, and update the bit memory
-    new_val     = getBitShort( ( stuffed + stuffed_index ), stuffed_bit );
+    new_val     = getBitShort( &stuffed[stuffed_index], stuffed_bit );
     bit_run_len = ( new_val == old_val ) ? ( bit_run_len + 1 ) : 1;
     old_val     = new_val;
 
     // If our bit run length is less than 5, update the unstuffed buffer
     // and increment position in each buffer.
     if ( bit_run_len < 5 ) {
-      modifyBitShort( unstuffed + unstuffed_index, unstuffed_bit,
+      modifyBitShort( &unstuffed[unstuffed_index], unstuffed_bit,
                      new_val );
 
-      unstuffed_bit   = ( unstuffed_bit < 15 ) ? ( unstuffed_bit + 1 ) : 0;
+      unstuffed_bit   = (unstuffed_bit + 1) % 16;
       unstuffed_index = ( unstuffed_bit == 0 ) ? ( unstuffed_index + 1 ) :
                                                  unstuffed_index;
 
-      stuffed_bit = ( stuffed_bit < 15 ) ? ( stuffed_bit + 1 ) : 0;
+      stuffed_bit = (stuffed_bit + 1) % 16;
       stuffed_index =
           ( stuffed_bit == 0 ) ? ( stuffed_index + 1 ) : stuffed_index;
     }
     else {
-      modifyBitShort( unstuffed + unstuffed_index, unstuffed_bit,
+      modifyBitShort( &unstuffed[unstuffed_index], unstuffed_bit,
                      new_val );
       unstuffed_bit   = ( unstuffed_bit < 15 ) ? ( unstuffed_bit + 1 ) : 0;
       unstuffed_index = ( unstuffed_bit == 0 ) ? ( unstuffed_index + 1 ) :
                                                  unstuffed_index;
 
-      stuffed_bit = ( stuffed_bit < 15 ) ? ( stuffed_bit + 1 ) : 0;
+      stuffed_bit = (stuffed_bit + 1) % 16;
       stuffed_index =
           ( stuffed_bit == 0 ) ? ( stuffed_index + 1 ) : stuffed_index;
 
-      stuffed_bit = ( stuffed_bit < 15 ) ? ( stuffed_bit + 1 ) : 0;
+      stuffed_bit = (stuffed_bit + 1) % 16;
       stuffed_index =
           ( stuffed_bit == 0 ) ? ( stuffed_index + 1 ) : stuffed_index;
 
@@ -459,7 +460,7 @@ void CAN::setupIdleCheck()
   // Load PIO program onto PIO0
   uint can_idle_offset = pio_add_program( pio_0, &idle_check_program );
 
-  can_idle_check_sm = pio_claim_unused_sm( pio_0, true );
+  // can_idle_check_sm = pio_claim_unused_sm( pio_0, true );
 
   // Initialize the PIO program
   idle_check_program_init( pio_0, can_idle_check_sm, can_idle_offset,
@@ -471,8 +472,8 @@ void CAN::setupIdleCheck()
   // Start the PIO program
   pio_sm_set_enabled( pio_0, can_idle_check_sm, true );
 
-  dma_chan_2 = dma_claim_unused_channel( true );
-  dma_chan_3 = dma_claim_unused_channel( true );
+  // dma_chan_2 = dma_claim_unused_channel( true );
+  // dma_chan_3 = dma_claim_unused_channel( true );
 
   // Channel Two (sends data to TX PIO machine)
   dma_channel_config c2 = dma_channel_get_default_config( dma_chan_2 );
@@ -514,7 +515,7 @@ void CAN::setupCANTX( irq_handler_t handler )
   // Power off transciever (avoids transients on bus)
   gpio_init( transceiver_en );
   gpio_set_dir( transceiver_en, GPIO_OUT );
-  gpio_put( transceiver_en, 0 );
+  gpio_put( transceiver_en, 1 );
 
   // Setup the idle checking system
   setupIdleCheck();
@@ -522,7 +523,7 @@ void CAN::setupCANTX( irq_handler_t handler )
   // Load PIO programs onto PIO0
   uint can_tx_offset = pio_add_program( pio_0, &can_tx_program );
 
-  can_tx_sm = pio_claim_unused_sm( pio_0, true );
+  // can_tx_sm = pio_claim_unused_sm( pio_0, true );
 
   // Initialize the PIO program
   can_tx_program_init( pio_0, can_tx_sm, can_tx_offset, can_tx, CLKDIV );
@@ -533,7 +534,7 @@ void CAN::setupCANTX( irq_handler_t handler )
   irq_set_exclusive_handler( PIO0_IRQ_0, handler );
   irq_set_enabled( PIO0_IRQ_0, true );
 
-  dma_chan_0 = dma_claim_unused_channel( true );
+  // dma_chan_0 = dma_claim_unused_channel( true );
 
   // Channel Zero (sends data to TX PIO machine)
   dma_channel_config c0 = dma_channel_get_default_config( dma_chan_0 );
@@ -548,8 +549,8 @@ void CAN::setupCANTX( irq_handler_t handler )
       &pio_0->txf[can_tx_sm],     // write address (transmit PIO TX FIFO)
       tx_packet_stuffed_pointer,  // read address (start of stuffed
                                   // packet)
-      sizeof( tx_packet_stuffed ) >>
-          1,  // Number of transfers (aborts early!)
+      MAX_STUFFED_PACKET_LEN,  // Number of shorts to transfer (size of the 
+                                // stuffed packet)
       false   // Don't start immediately.
   );
 
@@ -560,7 +561,7 @@ void CAN::setupCANTX( irq_handler_t handler )
   sleep_ms( 1 );
 
   // Power on transciever
-  gpio_put( transceiver_en, 1 );
+  gpio_put( transceiver_en, 0 );
 }
 
 // Set up CAN RX machine
@@ -569,7 +570,7 @@ void CAN::setupCANRX( irq_handler_t handler )
   // Load pio program onto PIO 1
   uint can_rx_offset = pio_add_program( pio_1, &can_rx_program );
 
-  can_rx_sm = pio_claim_unused_sm( pio_1, true );
+  // can_rx_sm = pio_claim_unused_sm( pio_1, true );
 
   // Initialize the PIO programs
   can_rx_program_init( pio_1, can_rx_sm, can_rx_offset, can_tx + 1,
@@ -581,7 +582,7 @@ void CAN::setupCANRX( irq_handler_t handler )
   irq_set_exclusive_handler( PIO1_IRQ_0, handler );
   irq_set_enabled( PIO1_IRQ_0, true );
 
-  dma_chan_1 = dma_claim_unused_channel( true );
+  // dma_chan_1 = dma_claim_unused_channel( true );
 
   // Channel One (gets data from RX PIO machine)
   dma_channel_config c1 = dma_channel_get_default_config( dma_chan_1 );
@@ -595,8 +596,7 @@ void CAN::setupCANRX( irq_handler_t handler )
       &c1,                        // The configuration we just created
       rx_packet_stuffed_pointer,  // write address (receive buffer)
       &pio_1->rxf[can_rx_sm],     // read address (receive PIO RX FIFO)
-      sizeof(
-          rx_packet_stuffed ),  // Number of transfers (aborts early!!)
+      MAX_STUFFED_PACKET_LEN,    // Number of shorts to transfer (size of the stuffed packet)
       false                     // Don't start immediately.
   );
 

@@ -90,13 +90,13 @@ static PT_THREAD( protothread_heartbeat( struct pt *pt ) )
 //
 // ISR entered at the end of packet transmit.
 void tx_handler() {
-    can_bus.handle_tx() ;
+  can_bus.handle_tx() ;
 }
 // ISR entered when a packet is available for attempted receipt.
 void rx_handler() {
-    // Ping the heartbeat
-    heartbeat.ping();
-    can_bus.handle_rx() ;
+  // Ping the heartbeat
+  heartbeat.ping();
+  can_bus.handle_rx() ;
 }
 
 //                             MAIN FOR CORES 0 AND 1
@@ -111,28 +111,31 @@ void core1_main() {
 
 // Main for core 0
 int main() {
-    // Initialize stdio
-    stdio_init_all();
+  // Overclock to 160MHz (divides evenly to 1 megabaud) (160/5/32=1)
+  set_sys_clock_khz(OVERCLOCK_RATE, true) ;
+
+  // Initialize stdio
+  stdio_init_all();
     
   int rc = pico_led_init();
   hard_assert(rc == PICO_OK);
     
-    // start core 1 threads
-    multicore_reset_core1();
-    multicore_launch_core1(&core1_main);
-
-    // Set can bus callback
-    can_bus.set_callback( read_packet );
-
-    // Setup the CAN receiver on core 0
-    can_bus.setupCANRX(rx_handler) ;
-
-    // Initialize the heartbeat
-    pt_add_thread( protothread_heartbeat );
-
-    pico_set_led(true);
-
-    pt_schedule_start ;
+  // start core 1 threads
+  multicore_reset_core1();
+  multicore_launch_core1(&core1_main);
+  
+  // Set can bus callback
+  can_bus.set_callback( read_packet );
+  
+  // Setup the CAN receiver on core 0
+  can_bus.setupCANRX(rx_handler) ;
+  
+  // Initialize the heartbeat
+  pt_add_thread( protothread_heartbeat );
+  
+  pico_set_led(true);
+  
+  pt_schedule_start ;
 }
 
 #endif

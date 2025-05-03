@@ -23,7 +23,7 @@
 
 State core_state = State();
 
-CAN can_bus( CORE_ARBITRATION, NETWORK_BROADCAST, 16, 22);
+CAN can_bus( CORE_ARBITRATION, NETWORK_BROADCAST, 16, 14);
 
 Switch system_enable(4); // whether to be on
 Switch wifi_enable(5);   // whether to use WiFi configs
@@ -36,7 +36,7 @@ ColorInput color_in;
 LED is_on(10);
 PWM red_out(11, 125.0f, 255, 0);
 PWM green_out(12, 125.0f, 255, 0);
-PWM blue_out(14, 125.0f, 255, 0);
+PWM blue_out(22, 125.0f, 255, 0);
 LED wifi_on(15);
 
 void on_color_update(State *s) {
@@ -52,6 +52,7 @@ void on_color_update(State *s) {
   payload[1] = c.red;
   payload[2] = c.green;
   payload[3] = c.blue;
+
   can_bus.set_payload(payload, 4);
 
   for (short clock_face : CLOCK_FACE_ARBITRATION) {
@@ -175,10 +176,12 @@ static PT_THREAD( protothread_core( struct pt *pt ) )
 //
 // ISR entered at the end of packet transmit.
 void tx_handler() {
+  printf("TX ISR\n");
   can_bus.handle_tx() ;
 }
 // ISR entered when a packet is available for attempted receipt.
 void rx_handler() {
+  printf("RX ISR\n");
   can_bus.handle_rx() ;
 }
 
@@ -190,20 +193,26 @@ void core1_main() {
     can_bus.setupCANTX(tx_handler) ;
 
     printf("TX handler set up\n");
+    
+    pt_add_thread( protothread_core );
+
     // Start the threader
     pt_schedule_start ;
 }
 
 // Main for core 0
 int main() {
+  // Overclock to 160MHz (divides evenly to 1 megabaud) (160/5/32=1)
+  set_sys_clock_khz(OVERCLOCK_RATE, true) ;
+
   // Initialize stdio
   stdio_init_all();
   sleep_ms(2000);
 
   printf("Launching...\n");
   
-  int rc = pico_led_init();
-  hard_assert(rc == PICO_OK);
+  // int rc = pico_led_init();
+  // hard_assert(rc == PICO_OK);
 
   // Initialize state callbacks
   core_state.add_led_on_callback( on_led_update );
@@ -225,10 +234,8 @@ int main() {
   can_bus.setupCANRX(rx_handler) ;
 
   printf("RX handler set up\n");
-
-  pt_add_thread( protothread_core );
   
-  pico_set_led(true);
+  // pico_set_led(true);
 
   pt_schedule_start ;
 }
