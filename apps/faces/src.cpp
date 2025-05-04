@@ -117,8 +117,8 @@ int main() {
   // Initialize stdio
   stdio_init_all();
     
-  int rc = pico_led_init();
-  hard_assert(rc == PICO_OK);
+  // int rc = pico_led_init();
+  // hard_assert(rc == PICO_OK);
     
   // start core 1 threads
   multicore_reset_core1();
@@ -133,7 +133,7 @@ int main() {
   // Initialize the heartbeat
   pt_add_thread( protothread_heartbeat );
   
-  pico_set_led(true);
+  // pico_set_led(true);
   
   pt_schedule_start ;
 }

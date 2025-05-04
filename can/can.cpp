@@ -596,8 +596,8 @@ void CAN::setupCANRX( irq_handler_t handler )
       &c1,                        // The configuration we just created
       rx_packet_stuffed_pointer,  // write address (receive buffer)
       &pio_1->rxf[can_rx_sm],     // read address (receive PIO RX FIFO)
-      MAX_STUFFED_PACKET_LEN,    // Number of shorts to transfer (size of the stuffed packet)
-      false                     // Don't start immediately.
+      MAX_STUFFED_PACKET_LEN,     // Number of shorts to transfer (size of the stuffed packet)
+      false                       // Don't start immediately.
   );
 
   // Tell DMA to rasie IRQ line 0 when channel 1 finished a block
