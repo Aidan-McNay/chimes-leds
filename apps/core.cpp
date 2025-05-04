@@ -23,7 +23,7 @@
 
 State core_state = State();
 
-CAN can_bus( CORE_ARBITRATION, NETWORK_BROADCAST, 16, 14);
+CAN can_bus( CORE_ARBITRATION, NETWORK_BROADCAST, 16, 22);
 
 Switch system_enable(4); // whether to be on
 Switch wifi_enable(5);   // whether to use WiFi configs
@@ -36,7 +36,7 @@ ColorInput color_in;
 LED is_on(10);
 PWM red_out(11, 125.0f, 255, 0);
 PWM green_out(12, 125.0f, 255, 0);
-PWM blue_out(22, 125.0f, 255, 0);
+PWM blue_out(14, 125.0f, 255, 0);
 LED wifi_on(15);
 
 void on_color_update(State *s) {
@@ -55,10 +55,13 @@ void on_color_update(State *s) {
 
   can_bus.set_payload(payload, 4);
 
-  for (short clock_face : CLOCK_FACE_ARBITRATION) {
-    can_bus.set_arbitration(clock_face);
-    can_bus.sendPacket();
-  }
+  can_bus.set_arbitration(CLOCK_FACE_ARBITRATION[0]);
+  can_bus.sendPacket();
+
+  // for (short clock_face : CLOCK_FACE_ARBITRATION) {
+  //   can_bus.set_arbitration(clock_face);
+  //   can_bus.sendPacket();
+  // }
 }
 
 void on_led_update(State *s) {
@@ -69,10 +72,13 @@ void on_led_update(State *s) {
   payload[0] = SET_TOGGLE;
   payload[1] = on;
   can_bus.set_payload(payload, 2);
-  for (short clock_face : CLOCK_FACE_ARBITRATION) {
-    can_bus.set_arbitration(clock_face);
+  
+    can_bus.set_arbitration(CLOCK_FACE_ARBITRATION[0]);
     can_bus.sendPacket();
-  }
+  // for (short clock_face : CLOCK_FACE_ARBITRATION) {
+  //   can_bus.set_arbitration(clock_face);
+  //   can_bus.sendPacket();
+  // }
 }
 
 void on_mode_change(State *s) {
@@ -116,7 +122,7 @@ void read_packet( const unsigned short* packet, const unsigned char len ) {
 }
 
 // us per sample
-#define PARAM_SAMPLE_RATE 10000
+#define PARAM_SAMPLE_RATE 1000000
 
 // Lux cap for light sensor below which to turn on LEDs
 #define LUX_CAP int2fix15(1)
@@ -176,7 +182,6 @@ static PT_THREAD( protothread_core( struct pt *pt ) )
 //
 // ISR entered at the end of packet transmit.
 void tx_handler() {
-  printf("TX ISR\n");
   can_bus.handle_tx() ;
 }
 // ISR entered when a packet is available for attempted receipt.
@@ -207,7 +212,7 @@ int main() {
 
   // Initialize stdio
   stdio_init_all();
-  sleep_ms(2000);
+  sleep_ms(5000);
 
   printf("Launching...\n");
   

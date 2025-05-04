@@ -45,6 +45,12 @@ void read_packet( const unsigned short* packet, const unsigned char len ) {
     bool on;
     can_msg_t typ = (can_msg_t) packet[0];
     printf("Received packet type %d\n", typ);
+    printf("Packet = {");
+    for (int i = 0; i < len; i++) {
+        printf("%d ", packet[i]);
+    }
+    printf("}\n");
+
     switch ( typ ) {
         case SET_COLOR:
             c.red = packet[1];
@@ -90,10 +96,12 @@ static PT_THREAD( protothread_heartbeat( struct pt *pt ) )
 //
 // ISR entered at the end of packet transmit.
 void tx_handler() {
+  printf("TX ISR\n");
   can_bus.handle_tx() ;
 }
 // ISR entered when a packet is available for attempted receipt.
 void rx_handler() {
+  printf("RX ISR\n");
   // Ping the heartbeat
   heartbeat.ping();
   can_bus.handle_rx() ;
