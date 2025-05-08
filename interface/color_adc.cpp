@@ -2,10 +2,12 @@
 #include "interface/color_adc.h"
 #include "hardware/adc.h"
 #include "hardware/dma.h"
+#include <cmath>
+#include "utils/fix15.h"
 
 // Switch calibrations
-static const int color_min = 16;
-static const int color_max = 3530;
+static const float color_min = -11.0;
+static const float color_max = -3.2;
 
 // ----------------------------------------------------------------------
 // Initialization
@@ -76,9 +78,12 @@ color_rgb ColorInput::sample() {
   // printf("Captured %u %u %u\n", capture_buf[red_chan], capture_buf[green_chan], capture_buf[blue_chan]);
 
   // Use the calibration values to convert the ADC values to RGB values
-  int red = capture_buf[red_chan] - color_min;
-  int green = capture_buf[green_chan] - color_min;
-  int blue = capture_buf[blue_chan] - color_min;
+  float red = log2f(fix2float15(capture_buf[red_chan]));
+  float green = log2f(fix2float15(capture_buf[green_chan]));
+  float blue = log2f(fix2float15(capture_buf[blue_chan]));
+  red -= color_min;
+  green -= color_min;
+  blue -= color_min;
   red = (red * 255) / (color_max - color_min);
   green = (green * 255) / (color_max - color_min);
   blue = (blue * 255) / (color_max - color_min);
@@ -93,9 +98,9 @@ color_rgb ColorInput::sample() {
   if (blue > 255) blue = 255;
 
   color_rgb c;
-  c.red = red;
-  c.green = green;
-  c.blue = blue;
+  c.red = (uint8_t) red;
+  c.green = (uint8_t) green;
+  c.blue = (uint8_t) blue;
 
   return c;
 }

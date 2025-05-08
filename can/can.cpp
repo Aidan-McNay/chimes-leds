@@ -6,6 +6,8 @@
 #include "stdio.h"
 #include <string.h>
 
+// 2344 D506 0820 B041 0608 2082 0824 C106 FFFF
+
 // ----------------------------------------------------------------------
 // Define buffers for storing studded/unstuffed packets for TX/RX
 // ----------------------------------------------------------------------
@@ -18,7 +20,8 @@ unsigned short* tx_packet_stuffed_pointer = &tx_packet_stuffed[0];
 // Buffer for received packets (stuffed then unstuffed)
 unsigned short  rx_packet_stuffed[MAX_STUFFED_PACKET_LEN] = { 0 };
 unsigned short  rx_packet_unstuffed[MAX_PACKET_LEN]       = { 0 };
-unsigned char* rx_packet_stuffed_pointer = (unsigned char*) (&rx_packet_stuffed[0]);
+// unsigned char* rx_packet_stuffed_pointer = (unsigned char*) (&rx_packet_stuffed[0]);
+unsigned short* rx_packet_stuffed_pointer = &rx_packet_stuffed[0];
 
 // For re-initializing these buffers
 unsigned short zero_packet[MAX_STUFFED_PACKET_LEN] = { 0 };
@@ -74,7 +77,6 @@ CAN::CAN( unsigned short my_arbitration, unsigned short network_broadcast,
 // ISR entered at the end of packet transmit
 void CAN::handle_tx()
 {
-  printf("TX ISR\n");
   // Abort/reset DMA channel, clear FIFO, clear PIO irq
   resetTransmitter();
   number_sent += 1;
@@ -90,14 +92,14 @@ void CAN::handle_rx()
   // Attempt packet receipt
   if ( attemptPacketReceive() ) {
     number_received += 1;
+
+    // Call the packet handler
+    if ( packet_handler ) {
+      packet_handler( &rx_packet_unstuffed[2], rx_packet_unstuffed[1] & 0xFF );
+    }
   }
   else {
     number_missed += 1;
-  }
-
-  // Call the packet handler
-  if ( packet_handler ) {
-    packet_handler( &rx_packet_unstuffed[2], rx_packet_unstuffed[1] & 0xFF );
   }
 
   // Clear the interrupt to receive the next message
@@ -316,37 +318,32 @@ void CAN::sendPacket()
   // Load EOF
   tx_packet_unstuffed[i + 1] = 0xFFFF;
 
-  // printf("Unstuffed packet {");
-  // for ( int i = 0; i < ( MAX_PACKET_LEN ); i++ ) {
-  //   printf( "%04X ", tx_packet_unstuffed[i] );
-  // }
-  // printf("}\n");
 
   // Bit stuff the packet
   bitStuff( tx_packet_unstuffed, tx_packet_stuffed );
 
+  // 2344 D506 0820 B041 0410 4104 1041 61E8 FFFF 0000 0000 0000 0000 0000 0000 0000 0000 0000
+
+
   // BEGIN TRANSMISSION
   dma_start_channel_mask( ( 1u << dma_chan_0 ) );
 
-  printf("Sending packet {");
-  for ( int i = 0; i < MAX_STUFFED_PACKET_LEN ; i++ ) {
-    printf( "%04X ", tx_packet_stuffed[i] );
-  }
-  printf("}\n");
+  // printf("Sending packet {");
+  // for ( int i = 0; i < ( MAX_STUFFED_PACKET_LEN ); i++ ) {
+  //   printf( "%04X ", tx_packet_stuffed[i] );
+  // }
+  // printf("}\n");
 
-  printf("RX packet {");
-  for ( int i = 0; i < MAX_STUFFED_PACKET_LEN ; i++ ) {
-    printf( "%04X ", rx_packet_stuffed[i] );
-  }
-  printf("}\n");
   while ( unsafe_to_tx ) {
     // Wait for the transmission to finish
+    // printf("Unsafe to tx\n");
   }
 }
 
 // Unstuffs the first array and stores the result in the second.
 void CAN::unBitStuff( unsigned short* stuffed, unsigned short* unstuffed )
 {
+  // printf("Memcpy\n");
   // Clear the buffer
   memcpy( &unstuffed[0], &zero_packet[0], MAX_PACKET_LEN * sizeof(short) );
 
@@ -363,9 +360,19 @@ void CAN::unBitStuff( unsigned short* stuffed, unsigned short* unstuffed )
   unsigned char new_val = 0;
   unsigned char old_val = 2;
 
+  // printf("Unbitstuffing!\n");
+
   // Until we find the end of frame . . .
   while ( ( stuffed_index < MAX_STUFFED_PACKET_LEN - 1 ) &&
            ( stuffed[stuffed_index] != 0xFFFF ) ) {
+    // printf("Stuffed index = %d\n", stuffed_index);
+    // printf("Unstuffed index = %d\n", unstuffed_index);
+    // printf("Current unstuffed = {");
+    // for (int i = 0; i < MAX_PACKET_LEN; i++) {
+    //   printf("%04X ", unstuffed[i]);
+    // }
+    // printf("}\n");
+
     // Get a new bit, update the bit run length, and update the bit memory
     new_val     = getBitShort( &stuffed[stuffed_index], stuffed_bit );
     bit_run_len = ( new_val == old_val ) ? ( bit_run_len + 1 ) : 1;
@@ -414,27 +421,26 @@ unsigned char CAN::attemptPacketReceive()
 {
   int i;
   
-  printf("Stuffed packet {");
-  for ( int i = 0; i < ( MAX_PACKET_LEN ); i++ ) {
-    printf( "%04X ", rx_packet_stuffed[i] );
-  }
-  printf("}\n");
+  // printf("Stuffed packet {");
+  // for ( int i = 0; i < ( MAX_PACKET_LEN ); i++ ) {
+  //   printf( "%04X ", rx_packet_stuffed[i] );
+  // }
+  // printf("}\n");
 
   // Unstuff the received packet
   unBitStuff( rx_packet_stuffed, rx_packet_unstuffed );
-
-  
-  printf("Unstuffed packet {");
-  for ( int i = 0; i < ( MAX_PACKET_LEN ); i++ ) {
-    printf( "%04X ", rx_packet_unstuffed[i] );
-  }
-  printf("}\n");
 
   // Check arbitration bits
   if ( ( rx_packet_unstuffed[0] != my_arbitration ) &&
        ( rx_packet_unstuffed[0] != network_broadcast ) ) {
     return 0;
   }
+  
+  // printf("Unstuffed packet {");
+  // for ( int i = 0; i < ( MAX_PACKET_LEN ); i++ ) {
+  //   printf( "%04X ", rx_packet_unstuffed[i] );
+  // }
+  // printf("}\n");
 
   unsigned char rx_len = (uint8_t) ( rx_packet_unstuffed[1] & 0x00FF );
 
@@ -603,7 +609,7 @@ void CAN::setupCANRX( irq_handler_t handler )
 
   // Channel One (gets data from RX PIO machine)
   dma_channel_config c1 = dma_channel_get_default_config( dma_chan_1 );
-  channel_config_set_transfer_data_size( &c1, DMA_SIZE_8 );
+  channel_config_set_transfer_data_size( &c1, DMA_SIZE_16 );
   channel_config_set_read_increment( &c1, false );
   channel_config_set_write_increment( &c1, true );
   channel_config_set_dreq( &c1, DREQ_PIO1_RX0 );

@@ -17,18 +17,12 @@
 #include "sensors/light.h"
 #include "sensors/microphone.h"
 
-#define GPIO_MIC 26
-#define LIGHT_SDA 27
-#define LIGHT_SCL 28
-#define CAN_TX 5
-#define CAN_TRANSCEIVER 22
 // Microphone voltage
 #define MIC_VOLTAGE float2fix15(3.3)
 
-
-CAN can_bus( SENSOR_ARBITRATION, NETWORK_BROADCAST, CAN_TX, CAN_TRANSCEIVER ) ;
-Microphone mic( GPIO_MIC ) ;
-LightSensor light_sensor( LIGHT_SDA, LIGHT_SCL ) ;
+CAN can_bus( SENSOR_ARBITRATION, NETWORK_BROADCAST, 16, 22 ) ;
+Microphone mic( 26 ) ;
+LightSensor light_sensor( 20, 21 ) ;
 
 // Send a packet with a fix15 data (sound or light value)
 void send_packet (can_msg_t typ, fix15 value) {
@@ -48,32 +42,40 @@ void send_packet (can_msg_t typ, fix15 value) {
   can_bus.sendPacket() ;
 }
 
+typedef enum {
+  LIGHT,
+  SOUND,
+  DISABLED
+} system_mode_t;
+
+system_mode_t system_mode = SOUND;
+
 
 void read_packet( const unsigned short* packet, const unsigned char len ) {
   // The length should be 1 here - the only commands we should recieve
   // are to request sensor data of certain types
 
   if ( len == 1 ) {
-    fix15 value;
-    can_msg_t typ = (can_msg_t) packet[0];
-    switch ( typ ) {
+    switch ( packet[0] ) {
       case SENSOR_LIGHT:
-        // Send the light sensor
-        value = light_sensor.sample() ;
-        send_packet(typ, value) ;
+        // Set the mode to light
+        system_mode = LIGHT;
         break;
       case SENSOR_SOUND:
-        // Send the sound sensor
-        value = mic.sample() ;
-        send_packet(typ, value) ;
+        // Set the mode to sound
+        system_mode = SOUND;
+        break;
+      case SET_TOGGLE:
+        system_mode = DISABLED;
         break;
       default:
         printf("Invalid packet type\n") ;
+        system_mode = DISABLED;
         break;
     }
   }
   else {
-    printf("Invalid packet length\n") ;
+    printf("Invalid packet length %d\n", len) ;
   }
 }
 
@@ -88,12 +90,58 @@ void rx_handler() {
   can_bus.handle_rx() ;
 }
 
+#define PARAM_SAMPLE_RATE 10000
+
+static PT_THREAD( protothread_core( struct pt *pt ) )
+{
+  PT_BEGIN( pt );
+  static int begin_time, elapsed_time;
+
+  while (1) {
+    // Measure time at start of thread
+    begin_time = time_us_32();
+
+    fix15 value;
+
+    printf("Running in mode %d\n", system_mode);
+    
+    switch (system_mode) {
+      case LIGHT:
+        // Send the light sensor
+        value = light_sensor.sample() ;
+        printf("Read light lux: %f\n", fix2float15(value));
+        send_packet(SENSOR_LIGHT, value) ;
+        break;
+      case SOUND:
+        // Send the sound sensor
+        value = mic.sample() ;
+        printf("Read mic db: %f\n", fix2float15(value));
+        send_packet(SENSOR_SOUND, value) ;
+        break;
+      default:
+        printf("Sensor disabled\n");
+        break;
+    }
+  
+
+    elapsed_time = time_us_32() - begin_time;
+
+    // yield for necessary amount of time
+    PT_YIELD_usec( PARAM_SAMPLE_RATE - elapsed_time );
+  }
+  PT_END( pt );
+}
+
+
 //                             MAIN FOR CORES 0 AND 1
 //
 // Main for core 1
 void core1_main() {
   // CAN transmitter will run on core 1
   can_bus.setupCANTX(tx_handler) ;
+
+  pt_add_thread( protothread_core );
+
   // Start the threader
   pt_schedule_start ;
 }
@@ -105,6 +153,12 @@ int main() {
   
   // Initialize stdio
   stdio_init_all();
+
+  sleep_ms(5000);
+
+  light_sensor.init();
+
+  printf("Launching...\n");
   
   // start core 1 threads
   multicore_reset_core1();

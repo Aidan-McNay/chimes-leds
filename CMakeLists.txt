@@ -162,6 +162,7 @@ foreach(APP_FILE_PATH ${APP_FILES})
   target_link_libraries(${APP_BIN} ${PICO_LIBS})
   
   pico_enable_stdio_usb(${APP_BIN} 1)
+  pico_enable_stdio_uart(${APP_BIN} 0)
 
   # create map/bin/hex file etc.
   pico_add_extra_outputs(${APP_BIN})

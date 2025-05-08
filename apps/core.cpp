@@ -42,6 +42,8 @@ LED wifi_on(15);
 void on_color_update(State *s) {
   color_rgb c = s->get_led_color().get_rgb();
 
+  printf("Setting color to %d %d %d\n", c.red, c.green, c.blue);
+
   red_out.set_duty(c.red);
   green_out.set_duty(c.green);
   blue_out.set_duty(c.blue);
@@ -82,6 +84,26 @@ void on_led_update(State *s) {
 }
 
 void on_mode_change(State *s) {
+      unsigned short payload[1];
+  switch (s->get_led_mode()) {
+    case LIGHT:
+      // Send light mode to light sensor
+      payload[0] = SENSOR_LIGHT;
+      break;
+    case MUSIC:
+      // Send music mode to sound sensor
+      payload[0] = SENSOR_SOUND;
+      break;
+    case CONST:
+      // Send const mode to clock face
+      payload[0] = SET_TOGGLE;
+      break;
+  }
+  
+      can_bus.set_payload(payload, 1);
+  can_bus.set_arbitration(SENSOR_ARBITRATION);
+  can_bus.sendPacket();
+
   // If the mode is set to const, turn on the LED
   if (s->get_led_mode() == CONST) {
     s->set_led_on(true);
@@ -93,6 +115,9 @@ void on_mode_change(State *s) {
 // Read sensor data
 fix15 last_light;
 fix15 last_sound;
+
+#define DECIBEL_MAX int2fix15(100)
+#define DECIBEL_MIN int2fix15(0)
 
 void read_packet( const unsigned short* packet, const unsigned char len ) {
   switch (packet[0]) {
@@ -114,6 +139,7 @@ void read_packet( const unsigned short* packet, const unsigned char len ) {
       }
 
       last_sound = (packet[1] << 16) + packet[2];
+      printf("Received sound data %f\n", fix2float15(last_sound));
       break;
     default:
       // Nothing to do here
@@ -122,7 +148,7 @@ void read_packet( const unsigned short* packet, const unsigned char len ) {
 }
 
 // us per sample
-#define PARAM_SAMPLE_RATE 1000000
+#define PARAM_SAMPLE_RATE 10000
 
 // Lux cap for light sensor below which to turn on LEDs
 #define LUX_CAP int2fix15(1)
@@ -140,8 +166,21 @@ static PT_THREAD( protothread_core( struct pt *pt ) )
     wifi_on.toggle(wifi_enable.enabled());
 
     if (system_enable.enabled()) {
+
+      if (light_mode.enabled()) {
+        core_state.set_led_mode(LIGHT);
+      } else if (music_mode.enabled()) {
+        core_state.set_led_mode(MUSIC);
+      } else if (on_mode.enabled()) {
+        core_state.set_led_mode(CONST);
+      } else {
+        printf("No modes selected.\n");
+      }
+
+      printf("Running in mode %d\n", core_state.get_led_mode());
+
+      color_rgb c = color_in.sample();
       
-      printf("RUNNIG\n");
       switch (core_state.get_led_mode()) {
         case LIGHT:
           // Send light sensor data to watch faces
@@ -154,15 +193,25 @@ static PT_THREAD( protothread_core( struct pt *pt ) )
           }
           break;
         case MUSIC:
+          core_state.set_led_on(true);
+          printf("Current volume %f\n", fix2float15(last_sound));
+
+        
+          // Set brightness based on volume
+          c.red = (uint8_t) ((float) c.red * fix2float15(last_sound));
+          c.green = (uint8_t) ((float) c.green * fix2float15(last_sound));
+          c.blue = (uint8_t) ((float) c.blue * fix2float15(last_sound));
+
           break;
         case CONST:
+          
           core_state.set_led_on(true);
           // Handle manual mode
           // Read red, green, and blue in values and set the color
-          color_rgb c = color_in.sample();
-          core_state.set_led_color(Color(c));
           break;
       }
+      
+      core_state.set_led_color(Color(c));
     } else {
       // If the system is not enabled, turn off the LEDs
       core_state.set_led_on(false);
@@ -186,7 +235,6 @@ void tx_handler() {
 }
 // ISR entered when a packet is available for attempted receipt.
 void rx_handler() {
-  printf("RX ISR\n");
   can_bus.handle_rx() ;
 }
 

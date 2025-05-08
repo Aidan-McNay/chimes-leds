@@ -34,7 +34,7 @@ CAN can_bus(ARBITRATION, NETWORK_BROADCAST, 16, 22);
 #define HEARTBEAT_RATE 10000
 Heartbeat heartbeat(19, 100);
 
-ColorLED led(RED_PIN, GREEN_PIN, BLUE_PIN, WHITE_PIN);
+ColorLED led(false, RED_PIN, GREEN_PIN, BLUE_PIN, WHITE_PIN);
 LED status(21);
 
 void read_packet( const unsigned short* packet, const unsigned char len ) {
@@ -44,15 +44,10 @@ void read_packet( const unsigned short* packet, const unsigned char len ) {
     color_rgb c;
     bool on;
     can_msg_t typ = (can_msg_t) packet[0];
-    printf("Received packet type %d\n", typ);
-    printf("Packet = {");
-    for (int i = 0; i < len; i++) {
-        printf("%d ", packet[i]);
-    }
-    printf("}\n");
 
     switch ( typ ) {
         case SET_COLOR:
+            printf("Set color to %d %d %d\n", packet[1], packet[2], packet[3]);
             c.red = packet[1];
             c.green = packet[2];
             c.blue = packet[3];
@@ -69,6 +64,38 @@ void read_packet( const unsigned short* packet, const unsigned char len ) {
             printf("Invalid packet type\n") ;
             break;
     }
+}
+
+// us per sample
+#define PARAM_SAMPLE_RATE 1000000
+
+
+static PT_THREAD( protothread_core( struct pt *pt ) )
+{
+  PT_BEGIN( pt );
+  static int begin_time, elapsed_time;
+
+  while (1) {
+    // Measure time at start of thread
+    begin_time = time_us_32();
+    
+    
+    unsigned short payload[1];
+
+    payload[0] = 3;
+
+    can_bus.set_payload(payload, 1);
+
+    can_bus.set_arbitration(DUMMY_ARBITRATION);
+    can_bus.sendPacket();
+  
+
+    elapsed_time = time_us_32() - begin_time;
+
+    // yield for necessary amount of time
+    PT_YIELD_usec( PARAM_SAMPLE_RATE - elapsed_time );
+  }
+  PT_END( pt );
 }
 
 
@@ -96,12 +123,10 @@ static PT_THREAD( protothread_heartbeat( struct pt *pt ) )
 //
 // ISR entered at the end of packet transmit.
 void tx_handler() {
-  printf("TX ISR\n");
   can_bus.handle_tx() ;
 }
 // ISR entered when a packet is available for attempted receipt.
 void rx_handler() {
-  printf("RX ISR\n");
   // Ping the heartbeat
   heartbeat.ping();
   can_bus.handle_rx() ;
@@ -113,6 +138,8 @@ void rx_handler() {
 void core1_main() {
   // CAN transmitter will run on core 1
   can_bus.setupCANTX(tx_handler) ;
+  
+  pt_add_thread( protothread_core );
   // Start the threader
   pt_schedule_start ;
 }

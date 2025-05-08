@@ -8,6 +8,7 @@
 #define CORE_ARBITRATION        0x1234   
 #define SENSOR_ARBITRATION      0x3234
 #define NETWORK_BROADCAST       0x5555
+#define DUMMY_ARBITRATION       0xABCD
 
 const short CLOCK_FACE_ARBITRATION[] = {
     0x2344,

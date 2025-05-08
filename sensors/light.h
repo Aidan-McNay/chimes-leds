@@ -74,6 +74,7 @@ class LightSensor {
 
   LightSensor( int gpio_sda, int gpio_scl );
   void fetch();
+  void init();
 
   void configure(integration_time_t it, gain_t g);
   void set_power_mode(power_save_mode_t mode);
@@ -85,8 +86,9 @@ class LightSensor {
   // Protected helper functions
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  protected:
-  void write( uint8_t addr, uint16_t data );
-  void read( uint8_t addr, uint16_t *dest );
+  int gpio_sda, gpio_scl;
+  static void write( uint8_t addr, uint16_t data );
+  static uint16_t read( uint8_t addr );
 
   // Gets the resolution of the sensor
   fix15 resolution();

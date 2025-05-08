@@ -6,9 +6,10 @@
 // Constructor
 // --------------------------------------------------------
 
-ColorLED::ColorLED(
+ColorLED::ColorLED( bool rgbw,
     int red_pin, int green_pin, int blue_pin, int white_pin)
-    :   red(red_pin, 125.0f, 255, 0),
+    :   rgbw(rgbw), 
+        red(red_pin, 125.0f, 255, 0),
         green(green_pin, 125.0f, 255, 0),
         blue(blue_pin, 125.0f, 255, 0),
         white(white_pin, 125.0f, 255, 0) {}
@@ -23,20 +24,24 @@ void ColorLED::set_color(const color_rgb c) {
     int g = gamma_lut[c.green];
     int b = gamma_lut[c.blue];
 
-    // Convert to RGBW
-    int w = std::min(r, std::min(g, b));
+    
+    if (rgbw) {
+        // Convert to RGBW
+        int w = std::min(r, std::min(g, b));
 
-    r -= w;
-    g -= w;
-    b -= w;
+        r -= w;
+        g -= w;
+        b -= w;
 
-    // White balance
-    r = r * white_balance.red / 128;
-    g = g * white_balance.green / 128;
-    b = b * white_balance.blue / 128;
-    w = w * white_correction / 128;
-
-    set_rgbw(r, g, b, w);
+        // White balance
+        r = r * white_balance.red / 128;
+        g = g * white_balance.green / 128;
+        b = b * white_balance.blue / 128;
+        w = w * white_correction / 128;
+        set_rgbw(r, g, b, w);
+    } else {
+        set_rgbw(r, g, b, 0);
+    }
 }
 
 void ColorLED::set_rgbw(int r, int g, int b, int w) {

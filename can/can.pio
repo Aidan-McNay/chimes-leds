@@ -248,7 +248,7 @@ static inline void can_rx_program_init(PIO pio, uint sm, uint offset, uint pin, 
     sm_config_set_jmp_pin(&c, pin) ;
 
     // (pointer to sm config, shift left, autopush on, threshold set to 8 bits)
-    sm_config_set_in_shift(&c, false, true, 8);
+    sm_config_set_in_shift(&c, false, true, 16);
 
     // Clock div
     sm_config_set_clkdiv(&c, div);

@@ -21,7 +21,7 @@
 #define BLUE_PIN 26
 #define WHITE_PIN 28
 
-ColorLED led(RED_PIN, GREEN_PIN, BLUE_PIN, WHITE_PIN);
+ColorLED led(true, RED_PIN, GREEN_PIN, BLUE_PIN, WHITE_PIN);
 
 color_rgb balanced = {128, 128, 128};
 

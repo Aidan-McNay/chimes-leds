@@ -6,24 +6,28 @@
 #include "sensors/light.h"
 #include "hardware/i2c.h"
 #include "utils/fix15.h"
+#include <cstdio>
 
 // ----------------------------------------------------------------------
 // I2C Helper functions
 // ----------------------------------------------------------------------
 
-inline void LightSensor::write( uint8_t addr, uint16_t data )
+void LightSensor::write( uint8_t addr, uint16_t data )
 {
   uint8_t buf[] = { addr, (uint8_t) (data >> 8), (uint8_t) (data & 0xFF) };
   i2c_write_blocking( I2C_CHAN, ADDRESS, buf, 3, false );
 }
 
-inline void LightSensor::read( uint8_t addr, uint16_t* dest )
+uint16_t LightSensor::read( uint8_t addr )
 {
+  printf("Reading address %d\n", addr);
   i2c_write_blocking( I2C_CHAN, ADDRESS, &addr, 1, true );
   static uint8_t buf[2];
   i2c_read_blocking( I2C_CHAN, ADDRESS, buf, 2, false );
 
-  *dest = ( buf[0] << 8 ) | buf[1];
+  printf("Read data %d %d\n", buf[0], buf[1]);
+
+  return ( buf[0] << 8 ) | buf[1];
 }
 
 // ----------------------------------------------------------------------
@@ -31,7 +35,12 @@ inline void LightSensor::read( uint8_t addr, uint16_t* dest )
 // ----------------------------------------------------------------------
 
 LightSensor::LightSensor( int gpio_sda, int gpio_scl )
-{
+  :gpio_sda(gpio_sda), gpio_scl(gpio_scl) {}
+
+// ----------------------------------------------------------------------
+// Init
+// ----------------------------------------------------------------------
+void LightSensor::init() {
   // Initialize I2C Channel
   i2c_init( I2C_CHAN, I2C_BAUD_RATE );
 
@@ -39,8 +48,8 @@ LightSensor::LightSensor( int gpio_sda, int gpio_scl )
   gpio_set_function( gpio_sda, GPIO_FUNC_I2C );
   gpio_set_function( gpio_scl, GPIO_FUNC_I2C );
 
-  configure( MS_100, TIMES_1 );
-  set_power_mode( OFF );
+  configure( MS_800, TIMES_2 );
+  set_power_mode( LEAST );
 }
 
 // ----------------------------------------------------------------------
@@ -84,8 +93,9 @@ fix15 LightSensor::resolution()
 
 fix15 LightSensor::sample()
 {
-  uint16_t data;
-  read( ALS, &data );
+  uint16_t data = read( ALS );
+
+  printf("Light data: %d\n", data);
 
   // Use the formula that Lux = data * resolution
   return multfix15( resolution(), int2fix15( data ) );

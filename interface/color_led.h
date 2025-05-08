@@ -6,7 +6,7 @@
 
 class ColorLED {
  public:
-  ColorLED( int red_pin, int green_pin, int blue_pin, int white_pin );
+  ColorLED( bool rgbw, int red_pin, int green_pin, int blue_pin, int white_pin );
 
   void set_color(color_rgb c);
 
@@ -15,6 +15,7 @@ class ColorLED {
   void toggle(bool on);
 
  protected:
+  bool rgbw;
   PWM red, green, blue, white;
 };
 
