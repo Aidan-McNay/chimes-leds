@@ -23,11 +23,11 @@ Our fianl system achieved all of the core goals we set in the proposal:
 
 While the system performed well during demonstration, there are two aspects 
 for improvement the next time. For example, one of the face boards suffered 
-from an internal short, which did not impact overall demonstration but it was 
+from an internal short, which did not impact overall demonstration but it is 
 necessary to be fixed for full deployment. Additionally, the start up of the 
-CAN bus needs a manual short between the differential lines after powered on, 
-which might due to the initial deadlock in CAN bus' PIO implementation, and 
-would be addressed in a future revision. 
+CAN bus needs a manual short between the differential lines ``CAN_H`` and 
+``CAN_L`` after powered on, which might due to the initial deadlock in CAN 
+bus' PIO implementation, and needs to be addressed in a future revision. 
 
 Looking forward, our system provides a foundation for future expansion like 
 WiFi/Bluetooth enables remoting control interfaces, and also the distributed 
