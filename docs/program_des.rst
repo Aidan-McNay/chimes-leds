@@ -19,6 +19,19 @@ Finally, this is followed by the data payload, and terminated with a CRC checksu
 Controller Board
 --------------------------------------------------------------------------
 
+The controller board is the core of the system, and controls the rest of the boards. It receives user input via the physical switches on the board, and uses these to control the rest of the system. 
+
+The system has three main modes, selected by a rotary switch:
+
+1. Light mode, where the system is turned on or off based on whether ambient light is detected below 1 lux.
+2. Sound mode, where the intensity of the light pulsates with the level of sound detected by the microphone.
+3. Manual mode, where the light is always on.
+
+The color of the light is set using the three physical sliders, allowing the user to control the color of the light in RGB. This is the base light color shown in all 3 modes.
+
+The controller board has a main thread managing the system running at a rate of 100Hz. This thread reads sensor data from the sensor board, and sends update messages to the face boards. It also reads values from input switches in order to control the system.
+
+
 Sensor Board
 --------------------------------------------------------------------------
 
