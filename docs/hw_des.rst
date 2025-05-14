@@ -81,8 +81,9 @@ including:
   two lines, to low-pass noise. Our transceiver additionally supported
   this by providing a :math:`\frac{V_{CC}}{2}` output to connect to the
   midpoint and further stabilize the bus
-* **TVS Diode**: A TVS diode was placed between both bus lines and ground,
-  preventing large voltage spikes from damaging other electronics
+* **TVS Diode**: A Transient Voltage Suppression (TVS) diode was placed
+  between both bus lines and ground, preventing large voltage spikes from
+  damaging other electronics
 * **Slope Control**: Our particular transceiver provided a pin which allowed
   the device to be in low-power mode (pulled to :math:`V_{CC}`), in
   "high-speed" mode (pulled to ground), or in "slope-control" mode
