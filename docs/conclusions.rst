@@ -11,18 +11,18 @@ behavior of the colcktower.
 Our fianl system achieved all of the core goals we set in the proposal:
 
 * The CAN bus supported data sending and receiving among boards based on Pico 
-  W’s PIO and DMA; 
+  W’s PIO and DMA
 * On the core board, one switch determined LEDs to be turned on or off, one 
   rotary switch determined the LED modes, and three potentiometer sliders 
-  controlled the brightness of LED's R/G/B channels using PWM; 
+  controlled the brightness of LED's R/G/B channels using PWM
 * The face boards responded accurately to R/G/B color updates when sliding 
-  the potentiometers on the core board; 
+  the potentiometers on the core board
 * The sensor board monitored and returned sound data to the core board in 
   the ``SOUND`` mode, and then achieving the control of lighting brightness 
-  by the external sound level. 
+  by the external sound level
 
 While the system performed well during demonstration, there are two aspects 
-for improvement the next time. For emample, one of the face boards suffered 
+for improvement the next time. For example, one of the face boards suffered 
 from an internal short, which did not impact overall demonstration but it was 
 necessary to be fixed for full deployment. Additionally, the start up of the 
 CAN bus needs a manual short between the differential lines after powered on, 
@@ -35,4 +35,4 @@ hardware design allows more clock faces or connecting other buildings or devices
 
 In the end, there were no external standards governing our project. However, 
 we reused Prof. Adams’ `CAN bus implementation <https://vanhunteradams.com/Pico/CAN/CAN.html>`_,
-and our team's PWM implemnetation used in lab3.
+and our team's PWM implementation used in lab3.
