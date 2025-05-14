@@ -91,6 +91,35 @@ void rx_handler() {
 }
 
 #define PARAM_SAMPLE_RATE 10000
+#define POLL_RATE  100
+#define BUFFER_SIZE 1000
+
+fix15 buffer[BUFFER_SIZE];
+
+static PT_THREAD( protothread_poll( struct pt *pt) ) 
+{
+  PT_BEGIN( pt );
+
+  static int begin_time, elapsed_time;
+  static int poll_i = 0;
+
+  while (1) {
+    // Measure time at start of thread
+    begin_time = time_us_32();
+
+    fix15 value = mic.sample() ;
+    
+    buffer[poll_i] = value;
+    poll_i = (poll_i + 1) % BUFFER_SIZE;
+
+    elapsed_time = time_us_32() - begin_time;
+
+    // yield for necessary amount of time
+    PT_YIELD_usec( POLL_RATE - elapsed_time );
+  }
+
+  PT_END( pt );
+}
 
 static PT_THREAD( protothread_core( struct pt *pt ) )
 {
@@ -101,7 +130,8 @@ static PT_THREAD( protothread_core( struct pt *pt ) )
     // Measure time at start of thread
     begin_time = time_us_32();
 
-    fix15 value;
+    fix15 low;
+    fix15 value = 0;
 
     printf("Running in mode %d\n", system_mode);
     
@@ -114,8 +144,19 @@ static PT_THREAD( protothread_core( struct pt *pt ) )
         break;
       case SOUND:
         // Send the sound sensor
-        value = mic.sample() ;
-        printf("Read mic db: %f\n", fix2float15(value));
+        low = int2fix15(1);
+        for (int i = 0; i < BUFFER_SIZE; ++i) {
+          if (buffer[i] < low) {
+            low = buffer[i];
+          }
+          if (buffer[i] > value) {
+            value = buffer[i];
+          }
+        }
+
+        value -= low;
+
+        printf("Read mic amp: %f\n", fix2float15(value));
         send_packet(SENSOR_SOUND, value) ;
         break;
       default:
@@ -169,6 +210,8 @@ int main() {
 
   // Setup the CAN receiver on core 0
   can_bus.setupCANRX(rx_handler) ;
+  
+  pt_add_thread( protothread_poll );
 
   pt_schedule_start ;
 }
