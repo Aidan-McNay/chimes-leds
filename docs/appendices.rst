@@ -23,7 +23,7 @@ Appendix C: Hardware Designs
 The group used `KiCad <https://www.kicad.org/>`_ for their PCB design,
 with external component symbols/footprints included as necessary from
 Digikey's CAD Models (included on the part's page). All of
-the design files can be found in the `pcb` directory of the source code,
+the design files can be found in the ``pcb`` directory of the source code,
 with the schematics of the 3 PCB designs included as PDFs below:
 
 :download:`Control Board Schematic <files/control_schematic.pdf>`
