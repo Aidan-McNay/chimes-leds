@@ -42,5 +42,8 @@ four)
 Appendix D: Member Responsibilities
 --------------------------------------------------------------------------
 
-* **Aidan**: Build system setup and complete hardware/PCB design and
-  bringup, as well as small help with utility class implementations
+* **Aidan**:
+
+  * CMake build system setup
+  * Complete hardware/PCB design, bringup, and debugging
+  * Small help with utility class implementations
