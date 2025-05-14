@@ -39,7 +39,14 @@ four)
 
 :download:`Bill of Materials <files/bom.csv>`
 
-Appendix D: Member Responsibilities
+Appendix D: References
+--------------------------------------------------------------------------
+
+* Adafruit's wiring guide for their `RGBW LED strip <https://www.adafruit.com/product/2439>`_
+  (visually very similar to ours) was used for additional confirmation that
+  our understanding of the strips was correct (along with our own testing).
+
+Appendix E: Member Responsibilities
 --------------------------------------------------------------------------
 
 * **Aidan**:
