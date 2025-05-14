@@ -45,6 +45,11 @@ Appendix D: References
 * Adafruit's wiring guide for their `RGBW LED strip <https://www.adafruit.com/product/2439>`_
   (visually very similar to ours) was used for additional confirmation that
   our understanding of the strips was correct (along with our own testing).
+* While all part datasheets were used, the
+  `CAN transceiver datasheet <https://www.ti.com/lit/ds/symlink/sn65hvd230.pdf>`_
+  in particular proved invaluable by providing different considerations for
+  CAN bus implementations, as well as an optimized example layout which
+  was followed for all boards.
 
 Appendix E: Member Responsibilities
 --------------------------------------------------------------------------

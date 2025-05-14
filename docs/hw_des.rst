@@ -59,6 +59,55 @@ the strips in beige (anticipating connecting them to some form of switch)
 CAN Transceiver
 --------------------------------------------------------------------------
 
+One particularly hardware-intensive component of our system were the
+CAN transceivers; these were present on all boards to communicate over the
+shared CAN bus. We chose to use the `SN65HVD230DR <https://www.digikey.com/en/products/detail/texas-instruments/SN65HVD230DR/404366>`_
+transceiver, as it had already been used in a CAN bus demo from Professor
+Adams, allowing us to re-use the PIO program and accompaning C code
+(albeit modifying as an object-oriented class for reusability across
+programs for all the boards).
+
+Aside from the transceiver itself, some other components are needed,
+including:
+
+* **Terminating Resistors**: Resistors are needed to pull the bus lines
+  together by default. While terminating resistors are strictly only
+  needed at the two ends of a bus, we wanted our system to be able to
+  handle any configuration of connected boards, and accordingly
+  terminated at all nodes of the bus. Additionally, CAN buses usually
+  have *standard termination* (a :math:`120\Omega` resistor between the
+  two lines); however, we opted for *split termination*, which uses two
+  :math:`60\Omega` resistors instead to insert a capacitor between the
+  two lines, to low-pass noise. Our transceiver additionally supported
+  this by providing a :math:`\frac{V_{CC}}{2}` output to connect to the
+  midpoint and further stabilize the bus
+* **TVS Diode**: A TVS diode was placed between both bus lines and ground,
+  preventing large voltage spikes from damaging other electronics
+* **Slope Control**: Our particular transceiver provided a pin which allowed
+  the device to be in low-power mode (pulled to :math:`V_{CC}`), in
+  "high-speed" mode (pulled to ground), or in "slope-control" mode
+  (a resistor between the pin and ground), where the slope of
+  transmissions could be controlled by the resistor's value. Since
+  we valued data integrity more than speed, we chose to have the
+  transceiver in "slope-control" mode by providing a :math:`10k\Omega`
+  resistor, with an additional PMOS above to allow the microcontroller
+  to turn off transmissions by pulling the node high, such as during
+  setup to avoid noise
+
+This diode (``D1``), as well as the split termination resistors and
+capacitor (``R7/R8/C7``) and smoothing capacitors (``C2/C3``) can be
+seen in the example layout below from the `CAN transceiver datasheet <https://www.ti.com/lit/ds/symlink/sn65hvd230.pdf>`_,
+which was utilized when implementing all boards (with the screenshot
+below shown from the controller board):
+
+|example_layout| |can_layout|
+
+.. |example_layout| image:: img/hw_des/example_layout.png
+   :width: 59%
+.. |can_layout| image:: img/hw_des/can_layout.png
+   :width: 39%
+   :class: image-border
+
 Controller Board
 --------------------------------------------------------------------------
 
