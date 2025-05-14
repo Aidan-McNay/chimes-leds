@@ -74,13 +74,11 @@ void on_led_update(State *s) {
   payload[0] = SET_TOGGLE;
   payload[1] = on;
   can_bus.set_payload(payload, 2);
-  
-    can_bus.set_arbitration(CLOCK_FACE_ARBITRATION[0]);
+
+  for (short clock_face : CLOCK_FACE_ARBITRATION) {
+    can_bus.set_arbitration(clock_face);
     can_bus.sendPacket();
-  // for (short clock_face : CLOCK_FACE_ARBITRATION) {
-  //   can_bus.set_arbitration(clock_face);
-  //   can_bus.sendPacket();
-  // }
+  }
 }
 
 void on_mode_change(State *s) {
@@ -100,7 +98,7 @@ void on_mode_change(State *s) {
       break;
   }
   
-      can_bus.set_payload(payload, 1);
+  can_bus.set_payload(payload, 1);
   can_bus.set_arbitration(SENSOR_ARBITRATION);
   can_bus.sendPacket();
 
@@ -263,9 +261,6 @@ int main() {
   sleep_ms(5000);
 
   printf("Launching...\n");
-  
-  // int rc = pico_led_init();
-  // hard_assert(rc == PICO_OK);
 
   // Initialize state callbacks
   core_state.add_led_on_callback( on_led_update );
@@ -287,8 +282,6 @@ int main() {
   can_bus.setupCANRX(rx_handler) ;
 
   printf("RX handler set up\n");
-  
-  // pico_set_led(true);
 
   pt_schedule_start ;
 }
