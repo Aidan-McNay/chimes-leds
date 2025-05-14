@@ -35,5 +35,18 @@ The controller board has a main thread managing the system running at a rate of 
 Sensor Board
 --------------------------------------------------------------------------
 
+The sensor board is responsible for reading the ambient light and sound levels, and sending this data to the controller board. It has three modes:
+
+1. ``LIGHT`` mode, in which the board sends light sensor data to the core at a rate of 100Hz.
+2. ``SOUND`` mode, in which the board sends sound sensor data to the core at a rate of 100Hz.
+3. ``DISABLED`` mode, where the system is turned off and does not send any data.
+
+The modes are controlled by the core board via the special ``SENSOR_LIGHT`` and ``SENSOR_SOUND`` messages, as well as the ``SET_TOGGLE`` message to turn the system off.
+
+The light sensor values are read through I2C, and raw values are converted to lux using the resolution of the light sensor via ``lux = resolution * raw value``. This resolution is calcula ted using the formula ``6.72 / (gain * integration_time)``, which was devised from the resolution datatable of the `light sensor datasheet <https://www.vishay.com/docs/84367/designingveml6030.pdf>`_. The system also supports changing gain and integration time, but these are fixed for the project.
+
+For the sound sensor, we decided to read raw ADC values rather than converting to decibels. This is because decibels are in logarithmic scale, which would mean the core would have to convert back to a linear scale anyway, wasting extra compute resources. In order to calculate the amplitude of audio, we sample the audio sensor on its own thread at 10kHz, and calculate the difference between the highest and lowest values in the last 1000 samples. This value represents the height of the dominant audio frequency, and thus is a good estimator of the amplitude of the sound.
+
+
 Face Board
 --------------------------------------------------------------------------
