@@ -59,3 +59,8 @@ Appendix E: Member Responsibilities
   * CMake build system setup
   * Complete hardware/PCB design, bringup, and debugging
   * Small help with utility class implementations
+
+* **Qingmiao**:
+
+  * Implement CAN bus working on one Pico and one CAN transceiver
+  * Small help with utility class implementations
