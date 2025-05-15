@@ -16,6 +16,8 @@ Finally, this is followed by the data payload, and terminated with a CRC checksu
 3. ``SET_COLOR`` is used to set the color of the face boards. The data payload contains 3 shorts, each containing a byte value from 0-255 representing the red, green, and blue values of the color.
 4. ``SET_TOGGLE`` toggles the sensor and face boards on and off. For the face boards, this turns off the lights, and for the sensor board this disables the data messages.
 
+Our CAN bus implementation is a modified version of Professor Adam's `CAN bus implementation <https://github.com/vha3/Hunter-Adams-RP2040-Demos/tree/master/Networking/CAN>`_, made to support sending and receiving in shorts, rather than receiving in bytes and sending in shorts. 
+
 Controller Board
 --------------------------------------------------------------------------
 
@@ -50,3 +52,21 @@ For the sound sensor, we decided to read raw ADC values rather than converting t
 
 Face Board
 --------------------------------------------------------------------------
+
+The face board is the simplest board, each responsible for controlling the lights of one of the four clock faces. It does not send any data back to the core, and only receives messages from the core. The face board can either be on or off, and the color of the lights is set by the core board.
+
+Because the LED strips used in the project have RGBW light, the RGB light values are converted to RGBW using the formula ``(R, G, B) => (R-W, G-W, B-W, W=min(R, G, B))``. Additionally, gamma correction is performed via a lookup table, and the system supports white balancing, which can be tuned using a special calibration script.
+
+
+Software Difficulties
+---------------------------------------------------------------------------
+The majority of difficulties with the software design was with the CAN modules. A number of issues were encountered with the CAN bus implementation, which took up the majority of our debugging effort.
+
+DMA channels
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+The first issue we encountered was with the DMA channels used by CAN. Because the CAN implementation was written for the Pico, rather than the Pico W, we realized that DMA channels 1 and 2 were already in use (provided ``cyw43_arch_init`` is called). This lead to the system immediately crashing when trying to claim the hardcoded channels. This was resolved by having the CAN implementation use DMA channels 5 and 6 instead.
+
+PIO Deadlock
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Another issue we encountered was with the PIO implementation of CAN. Although we are not exactly sure why (as described in the hardware design documentation), we suspect there to be a deadlock in the PIO states until every board sends and receives at least one message. To solve this via software, we included dummy messages sent to invalid IDs in the clock face boards, and we also short the CAN bus temporarily to force the PIO to enter the correct state.
+
