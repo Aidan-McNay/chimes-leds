@@ -56,6 +56,20 @@ the strips in beige (anticipating connecting them to some form of switch)
    :align: center
    :width: 50%
 
+One other consideration we had to make was the PWM frequency; too slow,
+and the blinking would be observable to viewers. However, after probing
+the current LED PWM output, we found the period to be about :math:`7.5ms`
+(corresponding to a frequency of :math:`\sim 133Hz`), which is easily
+attainable by our PWM channels (set to around :math:`4kHz`) and our
+MOSFETs (which have rise and fall times in the tens of nanoseconds).
+
+.. figure:: img/hw_des/scope.png
+   :align: center
+   :width: 80%
+   
+   Probe output of an LED currently installed, with :math:`7.5ms`
+   between repeating patterns
+
 CAN Transceiver
 --------------------------------------------------------------------------
 
@@ -94,6 +108,11 @@ including:
   resistor, with an additional PMOS above to allow the microcontroller
   to turn off transmissions by pulling the node high, such as during
   setup to avoid noise
+
+.. image:: img/hw_des/termination.png
+   :align: center
+   :width: 60%
+   :class: bottompadding
 
 This diode (``D1``), as well as the split termination resistors and
 capacitor (``R7/R8/C7``) and smoothing capacitors (``C2/C3``) can be
