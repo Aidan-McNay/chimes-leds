@@ -95,6 +95,11 @@ including:
   to turn off transmissions by pulling the node high, such as during
   setup to avoid noise
 
+.. image:: img/hw_des/termination.png
+   :align: center
+   :width: 60%
+   :class: bottompadding
+
 This diode (``D1``), as well as the split termination resistors and
 capacitor (``R7/R8/C7``) and smoothing capacitors (``C2/C3``) can be
 seen in the example layout below from the `CAN transceiver datasheet <https://www.ti.com/lit/ds/symlink/sn65hvd230.pdf>`_,
