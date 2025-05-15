@@ -11,7 +11,7 @@ To build the documentation locally, first install Sphinx,
 as well as our additional Sphinx modules:
 
 ```bash
-pip install sphinx sphinx_rtd_theme
+pip install sphinx sphinx_rtd_theme sphinxcontrib-youtube
 ```
 
 Then, you can build the output files in a `build`
