@@ -64,3 +64,11 @@ Appendix E: Member Responsibilities
 
   * Implement CAN bus working on one Pico and one CAN transceiver
   * Small help with utility class implementations
+
+* **Edmund**:
+
+  * Implement software interfaces to the various hardware peripherals,
+    including LEDs, potentiometers, and LED-driving MOSFETs
+  * Implement the top-level programs for all boards
+  * Implement the CAN packet protocol to communicate across boards,
+    as well as debug CAN issues
